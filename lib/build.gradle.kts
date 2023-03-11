@@ -1,6 +1,13 @@
+import org.gradle.api.JavaVersion.VERSION_17
+
 plugins {
     `java-library`
     `jacoco`
+}
+
+java {
+    sourceCompatibility = VERSION_17
+    targetCompatibility = VERSION_17
 }
 
 repositories {
