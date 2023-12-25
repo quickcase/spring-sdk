@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     api("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+    implementation("com.github.spullara.mustache.java:compiler:0.9.10")
 
     testImplementation("org.hamcrest:hamcrest:2.2")
 }
