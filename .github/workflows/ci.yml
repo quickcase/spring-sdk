@@ -38,7 +38,7 @@ jobs:
         if: failure()
         with:
           name: build-reports
-          path: 'lib/build/reports'
+          path: 'build/reports'
           retention-days: 1
 
   publish:
