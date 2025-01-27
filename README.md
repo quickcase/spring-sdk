@@ -2,7 +2,7 @@
 Development kit to build QuickCase-flavoured JDK applications.
 
 Supported JVM versions:
-- 17
+- 21
 
 ## Documentation
 

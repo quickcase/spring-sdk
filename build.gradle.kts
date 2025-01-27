@@ -1,4 +1,4 @@
-import org.gradle.api.JavaVersion.VERSION_17
+import org.gradle.api.JavaVersion.VERSION_21
 
 plugins {
     `java-library`
@@ -6,8 +6,8 @@ plugins {
 }
 
 java {
-    sourceCompatibility = VERSION_17
-    targetCompatibility = VERSION_17
+    sourceCompatibility = VERSION_21
+    targetCompatibility = VERSION_21
 }
 
 repositories {

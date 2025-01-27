@@ -11,6 +11,8 @@ on:
 permissions:
   contents: read
   packages: write
+env:
+  JAVA_VERSION: 21
 jobs:
   test:
     name: Test
@@ -20,11 +22,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.4.0
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ env.JAVA_VERSION }}
           cache: gradle
 
       - name: Compile and test
@@ -51,11 +53,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3.4.0
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
           distribution: corretto
-          java-version: 17
+          java-version: ${{ env.JAVA_VERSION }}
           cache: gradle
 
       - name: Gradle publish
