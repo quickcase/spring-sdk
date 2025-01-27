@@ -17,7 +17,7 @@ repositories {
 dependencies {
     api("com.fasterxml.jackson.core:jackson-databind:2.18.2")
 
-    testImplementation("org.hamcrest:hamcrest:2.2")
+    testImplementation("org.hamcrest:hamcrest:3.0")
 }
 
 testing {
