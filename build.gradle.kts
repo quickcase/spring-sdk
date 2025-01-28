@@ -3,6 +3,7 @@ import org.gradle.api.JavaVersion.VERSION_21
 plugins {
     `java-library`
     `jacoco`
+    id("io.freefair.lombok") version "8.12"
 }
 
 java {
