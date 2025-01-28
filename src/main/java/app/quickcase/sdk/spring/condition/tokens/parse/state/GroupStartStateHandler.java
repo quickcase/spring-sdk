@@ -1,5 +1,7 @@
 package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
+import app.quickcase.sdk.spring.condition.tokens.GroupDelimiterToken;
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState.*;
@@ -7,8 +9,8 @@ import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState
 class GroupStartStateHandler implements ParsingStateHandler {
 
     @Override
-    public Boolean accept(String token) {
-        return "(".equals(token);
+    public Boolean accept(Token token) {
+        return token instanceof GroupDelimiterToken && "(".equals(token.value());
     }
 
     @Override
@@ -17,7 +19,7 @@ class GroupStartStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
+    public void apply(ParsingContext context, Token token) {
         context.newGroup();
     }
 }

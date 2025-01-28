@@ -3,14 +3,9 @@ package app.quickcase.sdk.spring.condition.tokens;
 /**
  * Swallowed and ignored character.
  */
-public class VoidToken extends Token {
-
-    public VoidToken() {
-        super((char)0);
-    }
-
+public record VoidToken() implements Token {
     @Override
-    public Boolean accept(char character) {
-        return false;
+    public String value() {
+        return null;
     }
 }

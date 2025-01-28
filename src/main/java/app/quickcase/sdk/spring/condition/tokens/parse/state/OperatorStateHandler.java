@@ -2,6 +2,9 @@ package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
 import java.util.Arrays;
 
+import app.quickcase.sdk.spring.condition.tokens.OperatorToken;
+import app.quickcase.sdk.spring.condition.tokens.TextToken;
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 class OperatorStateHandler implements ParsingStateHandler {
@@ -14,8 +17,9 @@ class OperatorStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public Boolean accept(String token) {
-        return Arrays.asList(acceptTokens).contains(token);
+    public Boolean accept(Token token) {
+        return (token instanceof TextToken || token instanceof OperatorToken)
+                && Arrays.asList(acceptTokens).contains(token.value());
     }
 
     @Override
@@ -24,7 +28,7 @@ class OperatorStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
-        context.getCriteriaBuilder().operator(token);
+    public void apply(ParsingContext context, Token token) {
+        context.getCriteriaBuilder().operator(token.value());
     }
 }

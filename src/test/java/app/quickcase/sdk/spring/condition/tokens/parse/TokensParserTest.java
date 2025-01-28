@@ -5,7 +5,7 @@ import java.util.List;
 import app.quickcase.sdk.spring.condition.ConditionNode;
 import app.quickcase.sdk.spring.condition.Criteria;
 import app.quickcase.sdk.spring.condition.Group;
-import app.quickcase.sdk.spring.condition.tokens.parse.TokensParser;
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.error.SyntaxException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -14,12 +14,13 @@ import org.junit.jupiter.api.Test;
 
 import static app.quickcase.sdk.spring.condition.BinaryOperator.AND;
 import static app.quickcase.sdk.spring.condition.BinaryOperator.OR;
+import static app.quickcase.sdk.spring.condition.tokens.Token.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 class TokensParserTest {
 
-    private static String[] condition(String...tokens) {
+    private static Token[] condition(Token...tokens) {
         return tokens;
     }
 
@@ -38,10 +39,10 @@ class TokensParserTest {
     @Test
     @DisplayName("should parse simple conjunction condition without grouping")
     void shouldParseSimpleConjunctionNoGrouping() {
-        final String[] tokens = condition(
-            "field1", "===", "\"value1\"",
-            "AND",
-            "field2", "===", "\"Yes\""
+        var tokens = condition(
+                text("field1"), operator("==="), quotedString("value1"),
+                text("AND"),
+                text("field2"), operator("==="), quotedString("Yes")
         );
 
         final TokensParser parser = new TokensParser();
@@ -55,8 +56,10 @@ class TokensParserTest {
     @Test
     @DisplayName("should parse simple condition with redundant grouping")
     void shouldParseSimpleConditionWithRedundantGrouping() {
-        final String[] tokens = condition(
-            "(", "field1", "===", "\"value1\"", ")"
+        var tokens = condition(
+                groupDelimiter("("),
+                text("field1"), operator("==="), quotedString("value1"),
+                groupDelimiter(")")
         );
 
         final TokensParser parser = new TokensParser();
@@ -70,10 +73,14 @@ class TokensParserTest {
     @Test
     @DisplayName("should parse composed condition with one level of grouping")
     void shouldParseComposedConditionWithSingleLevelGrouping() {
-        final String[] tokens = condition(
-            "(", "a", "===", "\"1\"", "AND", "b", "===", "\"2\"", ")",
-            "OR",
-            "(", "c", "===", "\"3\"", "AND", "d", "===", "\"4\"", ")"
+        var tokens = condition(
+                groupDelimiter("("),
+                text("a"), operator("==="), quotedString("1"), text("AND"), text("b"), operator("==="), quotedString("2"),
+                groupDelimiter(")"),
+                text("OR"),
+                groupDelimiter("("),
+                text("c"), operator("==="), quotedString("3"), text("AND"), text("d"), operator("==="), quotedString("4"),
+                groupDelimiter(")")
         );
 
         final TokensParser parser = new TokensParser();
@@ -95,14 +102,14 @@ class TokensParserTest {
     @Test
     @DisplayName("should parse conditions with nested groups")
     void shouldParseConditionWithNestedGrouping() {
-        final String[] tokens = condition(
-            "(",
-                "(", "a", "===", "\"1\"", ")",
-                "AND",
-                "(", "b", "===", "\"2\"", ")",
-            ")",
-            "OR",
-            "c", "===", "\"3\""
+        var tokens = condition(
+                groupDelimiter("("),
+                groupDelimiter("("), text("a"), operator("==="), quotedString("1"), groupDelimiter(")"),
+                text("AND"),
+                groupDelimiter("("), text("b"), operator("==="), quotedString("2"), groupDelimiter(")"),
+                groupDelimiter(")"),
+                text("OR"),
+                text("c"), operator("==="), quotedString("3")
         );
 
         final TokensParser parser = new TokensParser();
@@ -124,35 +131,35 @@ class TokensParserTest {
     @Test
     @DisplayName("should reject GROUP_END outside of group")
     void shouldRejectGroupEndOutsideOfGroup() {
-        final String[] tokens = condition("field1", "===", "\"value1\"", ")");
+        var tokens = condition(text("field1"), operator("==="), quotedString("value1"), groupDelimiter(")"));
 
         final TokensParser parser = new TokensParser();
         final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
                                                                   () -> parser.parse(tokens));
         assertThat(
             exception.getMessage(),
-            equalTo("Unexpected token ')', expected one of: BINARY_OPERATOR, END")
+            equalTo("Unexpected token GroupDelimiterToken[value=)], expected one of: BINARY_OPERATOR, END")
         );
     }
 
     @Test
     @DisplayName("should reject condition ending with non-terminal token: Missing value")
     void shouldRejectConditionMissingValue() {
-        final String[] tokens = condition("field1", "===");
+        var tokens = condition(text("field1"), operator("==="));
 
         final TokensParser parser = new TokensParser();
         final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
                                                                   () -> parser.parse(tokens));
         assertThat(
             exception.getMessage(),
-            equalTo("Unexpected end of condition, expected one of: VALUE_NUMBER, VALUE_QUOTED")
+            equalTo("Unexpected end of condition, expected one of: VALUE_NUMBER, VALUE_STRING")
         );
     }
 
     @Test
     @DisplayName("should reject condition ending with non-terminal token: Group not closed")
     void shouldRejectConditionGroupNotClosed() {
-        final String[] tokens = condition("(", "field1", "===", "\"value1\"");
+        var tokens = condition(groupDelimiter("("), text("field1"), operator("==="), quotedString("value1"));
 
         final TokensParser parser = new TokensParser();
         final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
@@ -166,10 +173,14 @@ class TokensParserTest {
     @Test
     @DisplayName("should parse negated condition")
     void shouldParseNegatedCondition() {
-        final String[] tokens = condition(
-            "(", "a", "===", "\"1\"", "AND", "NOT", "b", "===", "\"2\"", ")",
-            "OR",
-            "NOT", "(", "c", "===", "\"3\"", "AND", "NOT", "(", "d", "===", "\"4\"", "OR", "e", "===", "\"5\"", ")", ")"
+        var tokens = condition(
+                groupDelimiter("("),
+                text("a"), operator("==="), quotedString("1"), text("AND"), text("NOT"), text("b"), operator("==="), quotedString("2"),
+                groupDelimiter(")"),
+                text("OR"),
+                text("NOT"), groupDelimiter("("),
+                text("c"), operator("==="), quotedString("3"), text("AND"), text("NOT"), groupDelimiter("("), text("d"), operator("==="), quotedString("4"), text("OR"), text("e"), operator("==="), quotedString("5"), groupDelimiter(")"),
+                groupDelimiter(")")
         );
 
         final TokensParser parser = new TokensParser();
@@ -198,14 +209,14 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse all forms of EQUALS operator")
         void shouldParseAllEqualsOperator() {
-            final String[] tokens = condition(
+            var tokens = condition(
                 // Case insensitive
-                "field1", "=", "\"a\"", "AND",
-                "field2", "==", "\"b\"", "AND",
-                "field3", "EQUALS_IC", "\"c\"", "AND",
+                text("field1"), operator("="), quotedString("a"), text("AND"),
+                text("field2"), operator("=="), quotedString("b"), text("AND"),
+                text("field3"), text("EQUALS_IC"), quotedString("c"), text("AND"),
                 // Case sensitive
-                "field4", "===", "\"d\"", "AND",
-                "field5", "EQUALS", "\"e\""
+                text("field4"), operator("==="), quotedString("d"), text("AND"),
+                text("field5"), text("EQUALS"), quotedString("e")
             );
 
             final TokensParser parser = new TokensParser();
@@ -225,7 +236,7 @@ class TokensParserTest {
         @Test
         @DisplayName("should accept numeric criteria value")
         void shouldAcceptNumericCriteriaValue() {
-            final String[] tokens = condition("field1", "EQUALS", "1");
+            var tokens = condition(text("field1"), text("EQUALS"), number("1"));
 
             final TokensParser parser = new TokensParser();
             assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
@@ -236,8 +247,8 @@ class TokensParserTest {
         @Test
         @DisplayName("should reject other values")
         void shouldRejectOtherValues() {
-            final String[] tokens = condition(
-                "field1", "=", "abc" // Non-quoted string and non-numeric
+            var tokens = condition(
+                text("field1"), operator("="), text("abc") // Non-quoted string and non-numeric
             );
 
             final TokensParser parser = new TokensParser();
@@ -245,7 +256,7 @@ class TokensParserTest {
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
-                equalTo("Unexpected token 'abc', expected one of: VALUE_NUMBER, VALUE_QUOTED")
+                equalTo("Unexpected token TextToken[value=abc], expected one of: VALUE_NUMBER, VALUE_STRING")
             );
         }
     }
@@ -256,11 +267,11 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse all forms of STARTS_WITH operator")
         void shouldParseAllStartsWithOperator() {
-            final String[] tokens = condition(
-                // Case insensitive
-                "field1", "STARTS_WITH_IC", "\"a\"", "AND",
-                // Case sensitive
-                "field2", "STARTS_WITH", "\"b\""
+            var tokens = condition(
+                    // Case insensitive
+                    text("field1"), text("STARTS_WITH_IC"), quotedString("a"), text("AND"),
+                    // Case sensitive
+                    text("field2"), text("STARTS_WITH"), quotedString("b")
             );
 
             final TokensParser parser = new TokensParser();
@@ -274,8 +285,8 @@ class TokensParserTest {
         @Test
         @DisplayName("should reject numeric values")
         void shouldRejectNumericValues() {
-            final String[] tokens = condition(
-                "field1", "STARTS_WITH", "123"
+            var tokens = condition(
+                    text("field1"), text("STARTS_WITH"), text("123")
             );
 
             final TokensParser parser = new TokensParser();
@@ -283,7 +294,7 @@ class TokensParserTest {
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
-                equalTo("Unexpected token '123', expected one of: VALUE_QUOTED")
+                equalTo("Unexpected token TextToken[value=123], expected one of: VALUE_STRING")
             );
         }
     }
@@ -294,11 +305,11 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse all forms of ENDS_WITH operator")
         void shouldParseAllEndsWithOperator() {
-            final String[] tokens = condition(
-                // Case insensitive
-                "field1", "ENDS_WITH_IC", "\"a\"", "AND",
-                // Case sensitive
-                "field2", "ENDS_WITH", "\"b\""
+            var tokens = condition(
+                    // Case insensitive
+                    text("field1"), text("ENDS_WITH_IC"), quotedString("a"), text("AND"),
+                    // Case sensitive
+                    text("field2"), text("ENDS_WITH"), quotedString("b")
             );
 
             final TokensParser parser = new TokensParser();
@@ -312,8 +323,8 @@ class TokensParserTest {
         @Test
         @DisplayName("should reject numeric values")
         void shouldRejectNumericValues() {
-            final String[] tokens = condition(
-                "field1", "ENDS_WITH", "123"
+            var tokens = condition(
+                    text("field1"), text("ENDS_WITH"), text("123")
             );
 
             final TokensParser parser = new TokensParser();
@@ -321,7 +332,7 @@ class TokensParserTest {
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
-                equalTo("Unexpected token '123', expected one of: VALUE_QUOTED")
+                equalTo("Unexpected token TextToken[value=123], expected one of: VALUE_STRING")
             );
         }
     }
@@ -332,11 +343,11 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse all forms of CONTAINS operator")
         void shouldParseAllContainsOperator() {
-            final String[] tokens = condition(
-                // Case insensitive
-                "field1", "CONTAINS_IC", "\"a\"", "AND",
-                // Case sensitive
-                "field2", "CONTAINS", "\"b\""
+            var tokens = condition(
+                    // Case insensitive
+                    text("field1"), text("CONTAINS_IC"), quotedString("a"), text("AND"),
+                    // Case sensitive
+                    text("field2"), text("CONTAINS"), quotedString("b")
             );
 
             final TokensParser parser = new TokensParser();
@@ -350,7 +361,7 @@ class TokensParserTest {
         @Test
         @DisplayName("should accept numeric criteria value")
         void shouldAcceptNumericCriteriaValue() {
-            final String[] tokens = condition("field1", "CONTAINS", "1");
+            var tokens = condition(text("field1"), text("CONTAINS"), number("1"));
 
             final TokensParser parser = new TokensParser();
             assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
@@ -365,8 +376,8 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse MATCHES operator")
         void shouldParseMatchesOperator() {
-            final String[] tokens = condition(
-                "field1", "MATCHES", "\"^[a-z]{3}$\""
+            var tokens = condition(
+                    text("field1"), text("MATCHES"), quotedString("^[a-z]{3}$")
             );
 
             final TokensParser parser = new TokensParser();
@@ -378,8 +389,8 @@ class TokensParserTest {
         @Test
         @DisplayName("should reject numeric values")
         void shouldRejectNumericValues() {
-            final String[] tokens = condition(
-                "field1", "MATCHES", "123"
+            var tokens = condition(
+                    text("field1"), text("MATCHES"), text("123")
             );
 
             final TokensParser parser = new TokensParser();
@@ -387,7 +398,7 @@ class TokensParserTest {
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
-                equalTo("Unexpected token '123', expected one of: VALUE_QUOTED")
+                equalTo("Unexpected token TextToken[value=123], expected one of: VALUE_STRING")
             );
         }
     }
@@ -398,7 +409,7 @@ class TokensParserTest {
         @Test
         @DisplayName("should parse HAS_LENGTH operator")
         void shouldParseAllContainsOperator() {
-            final String[] tokens = condition("field1", "HAS_LENGTH", "3");
+            var tokens = condition(text("field1"), text("HAS_LENGTH"), number("3"));
 
             final TokensParser parser = new TokensParser();
             assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
@@ -409,14 +420,14 @@ class TokensParserTest {
         @Test
         @DisplayName("should reject quoted string values")
         void shouldRejectQuotedStringValues() {
-            final String[] tokens = condition("field1", "HAS_LENGTH", "\"abc\"");
+            var tokens = condition(text("field1"), text("HAS_LENGTH"), quotedString("abc"));
 
             final TokensParser parser = new TokensParser();
             final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
-                equalTo("Unexpected token '\"abc\"', expected one of: VALUE_NUMBER")
+                equalTo("Unexpected token QuotedStringToken[value=abc], expected one of: VALUE_NUMBER")
             );
         }
     }

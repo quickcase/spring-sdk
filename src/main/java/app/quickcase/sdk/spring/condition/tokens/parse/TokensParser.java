@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import app.quickcase.sdk.spring.condition.ConditionNode;
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.error.SyntaxException;
 import app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState;
 
@@ -17,18 +18,18 @@ import app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState;
  */
 public class TokensParser {
 
-    public ConditionNode[] parse(String[] tokens) {
+    public ConditionNode[] parse(Token[] tokens) {
         ParsingState state = ParsingState.START;
         ParsingContext context = new ParsingContext();
 
-        for (final String token : tokens) {
+        for (final Token token : tokens) {
             final ParsingState[] nextPossibleStates = state.nextStates(context);
             final Optional<ParsingState> nextState = Arrays.stream(nextPossibleStates)
                                                            .filter((posState) -> posState.accept(token))
                                                            .findFirst();
             if (nextState.isEmpty()) {
                 throw new SyntaxException(String.format(
-                    "Unexpected token '%s', expected one of: %s",
+                    "Unexpected token %s, expected one of: %s",
                     token,
                     formatStates(nextPossibleStates)
                 ));

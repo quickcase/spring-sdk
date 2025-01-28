@@ -1,5 +1,6 @@
 package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 interface ParsingStateHandler {
@@ -10,7 +11,7 @@ interface ParsingStateHandler {
      * @param token Token being parsed
      * @return Whether the token is accepted by the current state
      */
-    Boolean accept(String token);
+    Boolean accept(Token token);
 
     /**
      * In the given context, what are the possible next states the current state can transition to?
@@ -26,5 +27,5 @@ interface ParsingStateHandler {
      * @param context Parsing context
      * @param token Current token
      */
-    void apply(ParsingContext context, String token);
+    void apply(ParsingContext context, Token token);
 }

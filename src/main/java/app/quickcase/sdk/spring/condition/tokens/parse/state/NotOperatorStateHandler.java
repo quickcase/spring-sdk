@@ -1,15 +1,18 @@
 package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
+import app.quickcase.sdk.spring.condition.tokens.TextToken;
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState.FIELD_PATH;
 import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState.GROUP_START;
 
 class NotOperatorStateHandler implements ParsingStateHandler {
+    private static final TextToken NOT = new TextToken("NOT");
 
     @Override
-    public Boolean accept(String token) {
-        return "NOT".equals(token);
+    public Boolean accept(Token token) {
+        return NOT.equals(token);
     }
 
     @Override
@@ -18,7 +21,7 @@ class NotOperatorStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
+    public void apply(ParsingContext context, Token token) {
         context.negateNext();
     }
 }
