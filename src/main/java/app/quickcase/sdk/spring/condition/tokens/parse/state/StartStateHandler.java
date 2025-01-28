@@ -1,5 +1,6 @@
 package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState.*;
@@ -7,7 +8,7 @@ import static app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState
 class StartStateHandler implements ParsingStateHandler {
 
     @Override
-    public Boolean accept(String token) {
+    public Boolean accept(Token token) {
         return false;
     }
 
@@ -17,7 +18,7 @@ class StartStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
+    public void apply(ParsingContext context, Token token) {
         throw new RuntimeException("Start state does not accept tokens");
     }
 }

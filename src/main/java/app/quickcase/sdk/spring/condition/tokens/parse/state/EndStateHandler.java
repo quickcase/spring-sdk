@@ -1,10 +1,11 @@
 package app.quickcase.sdk.spring.condition.tokens.parse.state;
 
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 class EndStateHandler implements ParsingStateHandler {
     @Override
-    public Boolean accept(String token) {
+    public Boolean accept(Token token) {
         return false;
     }
 
@@ -14,7 +15,7 @@ class EndStateHandler implements ParsingStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
+    public void apply(ParsingContext context, Token token) {
         throw new RuntimeException("End state does not accept tokens");
     }
 }

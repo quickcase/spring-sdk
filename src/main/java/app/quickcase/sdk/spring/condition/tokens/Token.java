@@ -1,23 +1,25 @@
 package app.quickcase.sdk.spring.condition.tokens;
 
-public abstract class Token {
-    protected String value;
+public interface Token {
+    String value();
 
-    Token(char firstCharacter) {
-        this.value = String.valueOf(firstCharacter);
+    static GroupDelimiterToken groupDelimiter(String delimiter) {
+        return new GroupDelimiterToken(delimiter);
     }
 
-    public String getValue() {
-        return this.value;
+    static NumberToken number(String number) {
+        return new NumberToken(number);
     }
 
-    public Boolean append(char character) {
-        if (accept(character)) {
-            this.value = this.value + character;
-            return true;
-        }
-        return false;
+    static OperatorToken operator(String operator) {
+        return new OperatorToken(operator);
     }
 
-    public abstract Boolean accept(char character);
+    static QuotedStringToken quotedString(String quotedString) {
+        return new QuotedStringToken(quotedString);
+    }
+
+    static TextToken text(String text) {
+        return new TextToken(text);
+    }
 }

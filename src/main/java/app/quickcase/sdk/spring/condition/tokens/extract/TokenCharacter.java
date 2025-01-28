@@ -1,4 +1,4 @@
-package app.quickcase.sdk.spring.condition.tokens;
+package app.quickcase.sdk.spring.condition.tokens.extract;
 
 import java.util.Arrays;
 
@@ -55,6 +55,10 @@ public enum TokenCharacter {
         }
 
         return false;
+    }
+
+    public static Boolean isDigit(int code) {
+        return code >= ZERO.code && code <= NINE.code;
     }
 
     public static Boolean isDoubleQuote(int code) {

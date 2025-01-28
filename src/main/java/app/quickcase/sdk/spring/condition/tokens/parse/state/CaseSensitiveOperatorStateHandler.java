@@ -3,6 +3,7 @@ package app.quickcase.sdk.spring.condition.tokens.parse.state;
 import java.util.Arrays;
 import java.util.List;
 
+import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 import app.quickcase.sdk.spring.utils.ArrayUtils;
 
@@ -22,10 +23,10 @@ class CaseSensitiveOperatorStateHandler extends OperatorStateHandler {
     }
 
     @Override
-    public void apply(ParsingContext context, String token) {
+    public void apply(ParsingContext context, Token token) {
         context.getCriteriaBuilder().operator(targetToken);
 
-        if (caseInsensitiveTokens.contains(token)) {
+        if (caseInsensitiveTokens.contains(token.value())) {
             context.getCriteriaBuilder().ignoreCase(true);
         }
     }
