@@ -33,6 +33,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
 
     testImplementation("org.hamcrest:hamcrest:3.0")
+    testImplementation("org.mockito:mockito-core")
 }
 
 testing {
