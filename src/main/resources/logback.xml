@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="${LOGBACK_CONFIGURATION_DEBUG:-false}">
+    <!-- Disable logback internal logs, use env var `LOGBACK_CONFIGURATION_DEBUG=true` to force enable -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <!-- Inherit Spring defaults -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <!-- QuickCase extensions -->
+    <include resource="console-json-appender.xml" />
+
+    <root level="${LOG_LEVEL:-INFO}">
+        <appender-ref ref="${LOG_FORMAT:-JSON}"/>
+    </root>
+
+</configuration>
