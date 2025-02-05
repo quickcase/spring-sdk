@@ -30,6 +30,8 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-databind")
     api("org.springframework.boot:spring-boot-starter-web")
 
+    implementation("ch.qos.logback:logback-classic")
+
     testImplementation("org.hamcrest:hamcrest:3.0")
 }
 
