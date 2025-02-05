@@ -4,6 +4,7 @@ plugins {
     `java-library`
     `jacoco`
     id("io.freefair.lombok") version "8.12.1"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 java {
@@ -15,8 +16,18 @@ repositories {
     mavenCentral()
 }
 
+val versions = mapOf(
+    "springBoot" to "3.4.2"
+)
+
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:${versions["springBoot"]}")
+    }
+}
+
 dependencies {
-    api("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    api("com.fasterxml.jackson.core:jackson-databind")
 
     testImplementation("org.hamcrest:hamcrest:3.0")
 }
