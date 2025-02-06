@@ -8,17 +8,25 @@ import lombok.Getter;
 import lombok.NonNull;
 
 public final class DataFieldPath extends FieldPath {
-    public static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?(?:\\.[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?)*$");
-    public static final Pattern COLLECTION_ITEM_PATTERN = Pattern.compile("^(?<collectionId>[a-zA-Z0-9_]+)\\[(?:(?:id:(?<itemId>[a-zA-Z0-9_]+))|(?<itemIndex>[0-9]+))?]$");
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?(?:\\.[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?)*$");
+    private static final Pattern COLLECTION_ITEM_PATTERN = Pattern.compile("^(?<collectionId>[a-zA-Z0-9_]+)\\[(?:(?:id:(?<itemId>[a-zA-Z0-9_]+))|(?<itemIndex>[0-9]+))?]$");
 
     DataFieldPath(@NonNull String path) {
         super(path);
+
+        if (!accepts(path)) {
+            throw new IllegalArgumentException("Invalid data field path: " + path);
+        }
     }
 
     public List<Element> elements() {
         return Arrays.stream(path.split("\\."))
                      .map(Element::new)
                      .toList();
+    }
+
+    public static boolean accepts(String path) {
+        return PATTERN.matcher(path).matches();
     }
 
     @Getter

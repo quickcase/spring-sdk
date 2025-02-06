@@ -12,7 +12,7 @@ abstract public class FieldPath {
     }
 
     public static FieldPath of(@NonNull String path) {
-        if (MetadataFieldPath.PATTERN.matcher(path).matches()) {
+        if (MetadataFieldPath.accepts(path)) {
             return ofMetadata(path);
         }
 
@@ -24,10 +24,6 @@ abstract public class FieldPath {
     }
 
     public static DataFieldPath ofData(@NonNull String path) {
-        if (!DataFieldPath.PATTERN.matcher(path).matches()) {
-            throw new IllegalArgumentException("Invalid data field path: " + path);
-        }
-
         return new DataFieldPath(path);
     }
 
