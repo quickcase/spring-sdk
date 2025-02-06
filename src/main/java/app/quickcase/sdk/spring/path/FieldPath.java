@@ -16,6 +16,10 @@ abstract public class FieldPath {
             return ofMetadata(path);
         }
 
+        if (ComputedFieldPath.accepts(path)) {
+            return ofComputed(path);
+        }
+
         return ofData(path);
     }
 
@@ -25,6 +29,10 @@ abstract public class FieldPath {
 
     public static DataFieldPath ofData(@NonNull String path) {
         return new DataFieldPath(path);
+    }
+
+    public static ComputedFieldPath ofComputed(@NonNull String path) {
+        return new ComputedFieldPath(path);
     }
 
     @Override
