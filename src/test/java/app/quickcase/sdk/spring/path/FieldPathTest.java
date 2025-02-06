@@ -50,6 +50,25 @@ class FieldPathTest {
     }
 
     @Nested
+    class OfComputed {
+        @Test
+        @DisplayName("should throw error when path is not for computed field")
+        void shouldThrowErrorWhenNotMetadata() {
+            var error = assertThrows(IllegalArgumentException.class, () -> FieldPath.ofComputed("field1"));
+            assertThat(error.getMessage(), equalTo("Invalid computed field path: field1"));
+        }
+
+        @Test
+        @DisplayName("should return computed field path")
+        void shouldReturnComputedFieldPath() {
+            var path = FieldPath.ofComputed(":linkedRecordsCount");
+
+            assertThat(path.toString(), equalTo(":linkedRecordsCount"));
+            assertThat(path.getIdentifier(), equalTo("linkedRecordsCount"));
+        }
+    }
+
+    @Nested
     class Of {
         @Test
         @DisplayName("should return metadata field path")
@@ -59,6 +78,17 @@ class FieldPathTest {
             assertAll(
                     () -> assertThat(path.toString(), equalTo("[state]")),
                     () -> assertThat(path, is(instanceOf(MetadataFieldPath.class)))
+            );
+        }
+
+        @Test
+        @DisplayName("should return computed field path")
+        void shouldReturnComputedFieldPath() {
+            var path = FieldPath.of(":linkedRecordsCount");
+
+            assertAll(
+                    () -> assertThat(path.toString(), equalTo(":linkedRecordsCount")),
+                    () -> assertThat(path, is(instanceOf(ComputedFieldPath.class)))
             );
         }
 
