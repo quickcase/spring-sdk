@@ -29,20 +29,14 @@ public enum Metadata {
 
         var name = path.substring(1, path.length() - 1).toLowerCase();
         return switch (name) {
-            case "workspace", "organisation", "jurisdiction" ->
-                    WORKSPACE;
-            case "type", "case_type" ->
-                    TYPE;
-            case "id", "reference", "case_reference" ->
-                    ID;
+            case "workspace", "organisation", "jurisdiction" -> WORKSPACE;
+            case "type", "case_type" -> TYPE;
+            case "id", "reference", "case_reference" -> ID;
             case "title" -> TITLE;
             case "state" -> STATE;
-            case "classification", "security_classification" ->
-                    CLASSIFICATION;
-            case "createdat", "created", "created_date" ->
-                    CREATED_AT;
-            case "lastmodifiedat", "modified", "last_modified", "last_modified_date" ->
-                    LAST_MODIFIED_AT;
+            case "classification", "security_classification" -> CLASSIFICATION;
+            case "createdat", "created", "created_date" -> CREATED_AT;
+            case "lastmodifiedat", "modified", "last_modified", "last_modified_date" -> LAST_MODIFIED_AT;
             default -> throw new IllegalArgumentException("Invalid metadata path: " + path);
         };
     }
