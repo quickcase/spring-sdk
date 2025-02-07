@@ -16,8 +16,11 @@ public enum TokenCharacter {
     DOUBLE_QUOTE('"'),
     PARENTHESIS_OPEN('('),
     PARENTHESIS_CLOSE(')'),
+    COLON(':'),
     DOT('.'),
     EQUAL('='),
+    SQUARE_BRACKET_OPEN('['),
+    SQUARE_BRACKET_CLOSE(']'),
     UNDERSCORE('_');
 
     // ASCII code
@@ -49,8 +52,8 @@ public enum TokenCharacter {
             // a-z
             return true;
         }
-        if (code == DOT.code || code == UNDERSCORE.code) {
-            // ._
+        if (code == COLON.code || code == DOT.code || code == UNDERSCORE.code || code == SQUARE_BRACKET_OPEN.code || code == SQUARE_BRACKET_CLOSE.code) {
+            // :._[]
             return true;
         }
 

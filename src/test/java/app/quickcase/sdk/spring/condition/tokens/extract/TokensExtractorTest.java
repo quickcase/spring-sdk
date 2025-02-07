@@ -84,6 +84,21 @@ class TokensExtractorTest {
                                 text("OR"),
                                 text("NOT"), groupDelimiter("("), text("c"), operator("==="), number("3"), groupDelimiter(")")
                         )
+                ),
+                args(
+                        "Support for all field path syntaxes",
+                        "[state] == \"active\" " +
+                                "AND :computedField == 2" +
+                                "AND complexField.member1 == \"test\" " +
+                                "AND collectionField[0].value == \"itemValue\" " +
+                                "AND collectionField[id:item1] == \"itemValue\"",
+                        array(
+                                text("[state]"), operator("=="), quotedString("active"),
+                                text("AND"), text(":computedField"), operator("=="), number("2"),
+                                text("AND"), text("complexField.member1"), operator("=="), quotedString("test"),
+                                text("AND"), text("collectionField[0].value"), operator("=="), quotedString("itemValue"),
+                                text("AND"), text("collectionField[id:item1]"), operator("=="), quotedString("itemValue")
+                        )
                 )
         );
     }
