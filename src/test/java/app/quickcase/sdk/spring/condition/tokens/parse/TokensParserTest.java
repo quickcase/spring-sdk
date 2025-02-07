@@ -203,6 +203,31 @@ class TokensParserTest {
         }));
     }
 
+    @Test
+    @DisplayName("should parse all valid field path syntaxes")
+    void shouldParseAllValidFieldPathSyntaxes() {
+        var tokens = condition(
+                text("[state]"), operator("==="), quotedString("active"),
+                text("AND"), text(":computedField"), operator("==="), number("2"),
+                text("AND"), text("complexField.member1"), operator("==="), quotedString("test"),
+                text("AND"), text("collectionField[0].value"), operator("==="), quotedString("itemValue"),
+                text("AND"), text("collectionField[id:item1]"), operator("==="), quotedString("itemValue")
+        );
+
+        final TokensParser parser = new TokensParser();
+        assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
+                criteria("[state]", "EQUALS", "active").build(),
+                AND,
+                criteria(":computedField", "EQUALS", 2).build(),
+                AND,
+                criteria("complexField.member1", "EQUALS", "test").build(),
+                AND,
+                criteria("collectionField[0].value", "EQUALS", "itemValue").build(),
+                AND,
+                criteria("collectionField[id:item1]", "EQUALS", "itemValue").build(),
+        }));
+    }
+
     @Nested
     @DisplayName("EQUALS")
     class EqualsOperator {

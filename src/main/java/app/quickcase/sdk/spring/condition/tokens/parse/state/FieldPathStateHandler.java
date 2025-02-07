@@ -5,13 +5,12 @@ import java.util.regex.Pattern;
 import app.quickcase.sdk.spring.condition.tokens.TextToken;
 import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
+import app.quickcase.sdk.spring.path.FieldPath;
 
 class FieldPathStateHandler implements ParsingStateHandler {
-    private static final Pattern REGEX = Pattern.compile("^[a-zA-Z0-9._]+$");
-
     @Override
     public Boolean accept(Token token) {
-        return token instanceof TextToken && REGEX.matcher(token.value()).matches();
+        return token instanceof TextToken && FieldPath.accepts(token.value());
     }
 
     @Override
