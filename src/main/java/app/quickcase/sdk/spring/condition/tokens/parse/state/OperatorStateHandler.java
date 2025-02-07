@@ -8,10 +8,16 @@ import app.quickcase.sdk.spring.condition.tokens.Token;
 import app.quickcase.sdk.spring.condition.tokens.parse.ParsingContext;
 
 class OperatorStateHandler implements ParsingStateHandler {
+    private final String targetToken;
     private final String[] acceptTokens;
     private final ParsingState[] nextStates;
 
     public OperatorStateHandler(String[] acceptTokens, ParsingState[] nextStates) {
+        this(null, acceptTokens, nextStates);
+    }
+
+    public OperatorStateHandler(String targetToken, String[] acceptTokens, ParsingState[] nextStates) {
+        this.targetToken = targetToken;
         this.acceptTokens = acceptTokens;
         this.nextStates = nextStates;
     }
@@ -29,6 +35,6 @@ class OperatorStateHandler implements ParsingStateHandler {
 
     @Override
     public void apply(ParsingContext context, Token token) {
-        context.getCriteriaBuilder().operator(token.value());
+        context.getCriteriaBuilder().operator(targetToken != null ? targetToken : token.value());
     }
 }

@@ -19,6 +19,8 @@ public enum TokenCharacter {
     COLON(':'),
     DOT('.'),
     EQUAL('='),
+    GREATER_THAN('>'),
+    LESS_THAN('<'),
     SQUARE_BRACKET_OPEN('['),
     SQUARE_BRACKET_CLOSE(']'),
     UNDERSCORE('_');
@@ -32,6 +34,8 @@ public enum TokenCharacter {
 
     public static final TokenCharacter[] OPERATOR_SYMBOLS = new TokenCharacter[]{
         EQUAL,
+        GREATER_THAN,
+        LESS_THAN,
     };
 
     public static final TokenCharacter[] GROUP_DELIMITERS = new TokenCharacter[]{

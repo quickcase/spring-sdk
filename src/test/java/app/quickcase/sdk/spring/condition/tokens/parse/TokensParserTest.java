@@ -456,4 +456,212 @@ class TokensParserTest {
             );
         }
     }
+
+    @Nested
+    @DisplayName("GREATER_THAN")
+    class GreaterThanOperator {
+        @Test
+        @DisplayName("should parse all forms of GREATER_THAN operator")
+        void shouldParseAllEqualsOperator() {
+            var tokens = condition(
+                    text("field1"), operator(">"), number("2"), text("AND"),
+                    text("field2"), text("GREATER_THAN"), number("2")
+            );
+
+            final TokensParser parser = new TokensParser();
+            assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
+                    criteria("field1", "GREATER_THAN", 2).build(),
+                    AND,
+                    criteria("field2", "GREATER_THAN", 2).build(),
+            }));
+        }
+
+        @Test
+        @DisplayName("should reject text values")
+        void shouldRejectTextValues() {
+            var tokens = condition(
+                    text("field1"), operator(">"), text("abc") // Non-quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token TextToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+
+        @Test
+        @DisplayName("should reject quoted string values")
+        void shouldRejectQuotedStringValues() {
+            var tokens = condition(
+                    text("field2"), operator(">"), quotedString("abc") // Quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token QuotedStringToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("GREATER_OR_EQUALS")
+    class GreaterOrEqualsOperator {
+        @Test
+        @DisplayName("should parse all forms of GREATER_OR_EQUALS operator")
+        void shouldParseAllEqualsOperator() {
+            var tokens = condition(
+                    text("field1"), operator(">="), number("2"), text("AND"),
+                    text("field2"), text("GREATER_OR_EQUALS"), number("2")
+            );
+
+            final TokensParser parser = new TokensParser();
+            assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
+                    criteria("field1", "GREATER_OR_EQUALS", 2).build(),
+                    AND,
+                    criteria("field2", "GREATER_OR_EQUALS", 2).build(),
+            }));
+        }
+
+        @Test
+        @DisplayName("should reject text values")
+        void shouldRejectTextValues() {
+            var tokens = condition(
+                    text("field1"), operator(">="), text("abc") // Non-quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token TextToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+
+        @Test
+        @DisplayName("should reject quoted string values")
+        void shouldRejectQuotedStringValues() {
+            var tokens = condition(
+                    text("field2"), operator(">="), quotedString("abc") // Quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token QuotedStringToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("LESS_THAN")
+    class LessThanOperator {
+        @Test
+        @DisplayName("should parse all forms of LESS_THAN operator")
+        void shouldParseAllEqualsOperator() {
+            var tokens = condition(
+                    text("field1"), operator("<"), number("2"), text("AND"),
+                    text("field2"), text("LESS_THAN"), number("2")
+            );
+
+            final TokensParser parser = new TokensParser();
+            assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
+                    criteria("field1", "LESS_THAN", 2).build(),
+                    AND,
+                    criteria("field2", "LESS_THAN", 2).build(),
+            }));
+        }
+
+        @Test
+        @DisplayName("should reject text values")
+        void shouldRejectTextValues() {
+            var tokens = condition(
+                    text("field1"), operator("<"), text("abc") // Non-quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token TextToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+
+        @Test
+        @DisplayName("should reject quoted string values")
+        void shouldRejectQuotedStringValues() {
+            var tokens = condition(
+                    text("field2"), operator("<"), quotedString("abc") // Quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token QuotedStringToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("LESS_OR_EQUALS")
+    class LessOrEqualsOperator {
+        @Test
+        @DisplayName("should parse all forms of LESS_OR_EQUALS operator")
+        void shouldParseAllEqualsOperator() {
+            var tokens = condition(
+                    text("field1"), operator("<="), number("2"), text("AND"),
+                    text("field2"), text("LESS_OR_EQUALS"), number("2")
+            );
+
+            final TokensParser parser = new TokensParser();
+            assertThat(parser.parse(tokens), equalTo(new ConditionNode[]{
+                    criteria("field1", "LESS_OR_EQUALS", 2).build(),
+                    AND,
+                    criteria("field2", "LESS_OR_EQUALS", 2).build(),
+            }));
+        }
+
+        @Test
+        @DisplayName("should reject text values")
+        void shouldRejectTextValues() {
+            var tokens = condition(
+                    text("field1"), operator("<="), text("abc") // Non-quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token TextToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+
+        @Test
+        @DisplayName("should reject quoted string values")
+        void shouldRejectQuotedStringValues() {
+            var tokens = condition(
+                    text("field2"), operator("<="), quotedString("abc") // Quoted string
+            );
+
+            final TokensParser parser = new TokensParser();
+            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+                    () -> parser.parse(tokens));
+            assertThat(
+                    exception.getMessage(),
+                    equalTo("Unexpected token QuotedStringToken[value=abc], expected one of: VALUE_NUMBER")
+            );
+        }
+    }
 }
