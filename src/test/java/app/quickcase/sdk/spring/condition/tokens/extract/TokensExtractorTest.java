@@ -99,6 +99,25 @@ class TokensExtractorTest {
                                 text("AND"), text("collectionField[0].value"), operator("=="), quotedString("itemValue"),
                                 text("AND"), text("collectionField[id:item1]"), operator("=="), quotedString("itemValue")
                         )
+                ),
+                args(
+                        "Support for all operator symbols",
+                        "field1 = 0 " +
+                                "AND field2 == 0 " +
+                                "AND field3 === 0 " +
+                                "AND field4 > 0 " +
+                                "AND field5 >= 0 " +
+                                "AND field6 < 0 " +
+                                "AND field7 <= 0",
+                        array(
+                                text("field1"), operator("="), number("0"),
+                                text("AND"), text("field2"), operator("=="), number("0"),
+                                text("AND"), text("field3"), operator("==="), number("0"),
+                                text("AND"), text("field4"), operator(">"), number("0"),
+                                text("AND"), text("field5"), operator(">="), number("0"),
+                                text("AND"), text("field6"), operator("<"), number("0"),
+                                text("AND"), text("field7"), operator("<="), number("0")
+                        )
                 )
         );
     }

@@ -28,9 +28,29 @@ public enum ParsingState {
         new String[] {"ENDS_WITH_IC"},
         new ParsingState[]{VALUE_STRING}
     )),
+    COMP_GREATER_THAN(new OperatorStateHandler(
+            "GREATER_THAN",
+            new String[] {"GREATER_THAN", ">"},
+            new ParsingState[]{VALUE_NUMBER}
+    )),
+    COMP_GREATER_OR_EQUALS(new OperatorStateHandler(
+            "GREATER_OR_EQUALS",
+            new String[] {"GREATER_OR_EQUALS", ">="},
+            new ParsingState[]{VALUE_NUMBER}
+    )),
     COMP_HAS_LENGTH(new OperatorStateHandler(
         new String[]{"HAS_LENGTH"},
         new ParsingState[]{VALUE_NUMBER}
+    )),
+    COMP_LESS_THAN(new OperatorStateHandler(
+            "LESS_THAN",
+            new String[] {"LESS_THAN", "<"},
+            new ParsingState[]{VALUE_NUMBER}
+    )),
+    COMP_LESS_OR_EQUALS(new OperatorStateHandler(
+            "LESS_OR_EQUALS",
+            new String[] {"LESS_OR_EQUALS", "<="},
+            new ParsingState[]{VALUE_NUMBER}
     )),
     COMP_MATCHES(new OperatorStateHandler(
         new String[]{"MATCHES"},
@@ -53,7 +73,11 @@ public enum ParsingState {
         COMP_CONTAINS,
         COMP_EQUALS,
         COMP_ENDS_WITH,
+        COMP_GREATER_THAN,
+        COMP_GREATER_OR_EQUALS,
         COMP_HAS_LENGTH,
+        COMP_LESS_THAN,
+        COMP_LESS_OR_EQUALS,
         COMP_MATCHES,
         COMP_STARTS_WITH,
     };
