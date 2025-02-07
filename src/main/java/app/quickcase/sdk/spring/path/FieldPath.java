@@ -11,6 +11,10 @@ abstract public class FieldPath {
         this.path = path;
     }
 
+    public static boolean accepts(@NonNull String path) {
+        return MetadataFieldPath.accepts(path) || ComputedFieldPath.accepts(path) || DataFieldPath.accepts(path);
+    }
+
     public static FieldPath of(@NonNull String path) {
         if (MetadataFieldPath.accepts(path)) {
             return ofMetadata(path);
