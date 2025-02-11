@@ -20,7 +20,7 @@ public record DataField(
     @Singular Map<String, DataField> members,
     Validation validation,
     Field.Display display,
-    @NonNull @Singular("acl") Map<String, Short> acl,
+    @NonNull @Singular("acl") Map<String, Integer> acl,
     @NonNull String classification
 ) implements Field {
     @Builder
