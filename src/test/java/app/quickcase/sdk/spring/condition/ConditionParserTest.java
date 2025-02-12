@@ -154,6 +154,10 @@ class ConditionParserTest {
 
     private void assertCondition(String conditionString, Condition expected) {
         final ConditionParser parser = new ConditionParser();
-        assertThat(parser.parse(conditionString), equalTo(expected));
+        try {
+            assertThat(parser.parse(conditionString), equalTo(expected));
+        } catch (ConditionSyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
