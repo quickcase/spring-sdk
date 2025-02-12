@@ -6,7 +6,7 @@ import app.quickcase.sdk.spring.condition.ConditionNode;
 import app.quickcase.sdk.spring.condition.Criteria;
 import app.quickcase.sdk.spring.condition.Group;
 import app.quickcase.sdk.spring.condition.tokens.Token;
-import app.quickcase.sdk.spring.condition.tokens.parse.error.SyntaxException;
+import app.quickcase.sdk.spring.condition.ConditionSyntaxException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -134,7 +134,7 @@ class TokensParserTest {
         var tokens = condition(text("field1"), operator("==="), quotedString("value1"), groupDelimiter(")"));
 
         final TokensParser parser = new TokensParser();
-        final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+        final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                   () -> parser.parse(tokens));
         assertThat(
             exception.getMessage(),
@@ -148,7 +148,7 @@ class TokensParserTest {
         var tokens = condition(text("field1"), operator("==="));
 
         final TokensParser parser = new TokensParser();
-        final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+        final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                   () -> parser.parse(tokens));
         assertThat(
             exception.getMessage(),
@@ -162,7 +162,7 @@ class TokensParserTest {
         var tokens = condition(groupDelimiter("("), text("field1"), operator("==="), quotedString("value1"));
 
         final TokensParser parser = new TokensParser();
-        final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+        final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                   () -> parser.parse(tokens));
         assertThat(
             exception.getMessage(),
@@ -277,7 +277,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
@@ -315,7 +315,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
@@ -353,7 +353,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
@@ -419,7 +419,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
@@ -448,7 +448,7 @@ class TokensParserTest {
             var tokens = condition(text("field1"), text("HAS_LENGTH"), quotedString("abc"));
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                                                                       () -> parser.parse(tokens));
             assertThat(
                 exception.getMessage(),
@@ -484,7 +484,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -500,7 +500,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -536,7 +536,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -552,7 +552,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -588,7 +588,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -604,7 +604,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -640,7 +640,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
@@ -656,7 +656,7 @@ class TokensParserTest {
             );
 
             final TokensParser parser = new TokensParser();
-            final SyntaxException exception = Assertions.assertThrows(SyntaxException.class,
+            final ConditionSyntaxException exception = Assertions.assertThrows(ConditionSyntaxException.class,
                     () -> parser.parse(tokens));
             assertThat(
                     exception.getMessage(),
