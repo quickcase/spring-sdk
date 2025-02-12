@@ -20,7 +20,8 @@ public record DataField(
     Validation validation,
     Field.Display display,
     @NonNull @Singular("acl") Map<String, Integer> acl,
-    @NonNull String classification
+    @NonNull String classification,
+    String condition
 ) implements Field {
     @Builder
     public record Validation(
