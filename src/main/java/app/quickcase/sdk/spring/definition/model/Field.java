@@ -1,9 +1,10 @@
 package app.quickcase.sdk.spring.definition.model;
 
 import java.util.Map;
-import java.util.Optional;
 
+import lombok.Builder;
 import lombok.NonNull;
+import lombok.Singular;
 
 public interface Field {
     @NonNull String id();
@@ -11,8 +12,10 @@ public interface Field {
     String label();
     Field.Display display();
 
-    interface Display {
-        String mode();
-        Map<String, String> parameters();
+    @Builder
+    record Display(
+            String mode,
+            @Singular Map<String, String> parameters
+    ) {
     }
 }
