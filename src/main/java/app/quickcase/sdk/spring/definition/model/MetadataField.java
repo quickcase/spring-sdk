@@ -11,7 +11,7 @@ public record MetadataField(
         @NonNull String id,
         @NonNull String name,
         String label,
-        @Singular List<MetadataField.Option> options,
+        @Singular(ignoreNullCollections = true) List<MetadataField.Option> options,
         Field.Display display
 ) implements Field{
     @Builder

@@ -15,7 +15,7 @@ public interface Field {
     @Builder
     record Display(
             String mode,
-            @Singular Map<String, String> parameters
+            @Singular(ignoreNullCollections = true) Map<String, String> parameters
     ) {
     }
 }
