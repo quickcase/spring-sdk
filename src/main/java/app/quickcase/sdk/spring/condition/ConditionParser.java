@@ -9,7 +9,7 @@ public class ConditionParser {
     private final TokensParser parser = new TokensParser();
     private final ConditionNormaliser normaliser = new ConditionNormaliser();
 
-    public Condition parse(String conditionString) {
+    public Condition parse(String conditionString) throws ConditionSyntaxException {
         return new Condition(normaliser.normalise(parser.parse(extractor.extract(conditionString))));
     }
 }

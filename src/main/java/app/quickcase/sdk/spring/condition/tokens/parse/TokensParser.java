@@ -18,7 +18,7 @@ import app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState;
  */
 public class TokensParser {
 
-    public ConditionNode[] parse(Token[] tokens) {
+    public ConditionNode[] parse(Token[] tokens) throws ConditionSyntaxException {
         ParsingState state = ParsingState.START;
         ParsingContext context = new ParsingContext();
 

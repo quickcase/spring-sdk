@@ -38,7 +38,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse simple conjunction condition without grouping")
-    void shouldParseSimpleConjunctionNoGrouping() {
+    void shouldParseSimpleConjunctionNoGrouping() throws ConditionSyntaxException {
         var tokens = condition(
                 text("field1"), operator("==="), quotedString("value1"),
                 text("AND"),
@@ -55,7 +55,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse simple condition with redundant grouping")
-    void shouldParseSimpleConditionWithRedundantGrouping() {
+    void shouldParseSimpleConditionWithRedundantGrouping() throws ConditionSyntaxException {
         var tokens = condition(
                 groupDelimiter("("),
                 text("field1"), operator("==="), quotedString("value1"),
@@ -72,7 +72,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse composed condition with one level of grouping")
-    void shouldParseComposedConditionWithSingleLevelGrouping() {
+    void shouldParseComposedConditionWithSingleLevelGrouping() throws ConditionSyntaxException {
         var tokens = condition(
                 groupDelimiter("("),
                 text("a"), operator("==="), quotedString("1"), text("AND"), text("b"), operator("==="), quotedString("2"),
@@ -101,7 +101,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse conditions with nested groups")
-    void shouldParseConditionWithNestedGrouping() {
+    void shouldParseConditionWithNestedGrouping() throws ConditionSyntaxException {
         var tokens = condition(
                 groupDelimiter("("),
                 groupDelimiter("("), text("a"), operator("==="), quotedString("1"), groupDelimiter(")"),
@@ -172,7 +172,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse negated condition")
-    void shouldParseNegatedCondition() {
+    void shouldParseNegatedCondition() throws ConditionSyntaxException {
         var tokens = condition(
                 groupDelimiter("("),
                 text("a"), operator("==="), quotedString("1"), text("AND"), text("NOT"), text("b"), operator("==="), quotedString("2"),
@@ -205,7 +205,7 @@ class TokensParserTest {
 
     @Test
     @DisplayName("should parse all valid field path syntaxes")
-    void shouldParseAllValidFieldPathSyntaxes() {
+    void shouldParseAllValidFieldPathSyntaxes() throws ConditionSyntaxException {
         var tokens = condition(
                 text("[state]"), operator("==="), quotedString("active"),
                 text("AND"), text(":computedField"), operator("==="), number("2"),
@@ -233,7 +233,7 @@ class TokensParserTest {
     class EqualsOperator {
         @Test
         @DisplayName("should parse all forms of EQUALS operator")
-        void shouldParseAllEqualsOperator() {
+        void shouldParseAllEqualsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                 // Case insensitive
                 text("field1"), operator("="), quotedString("a"), text("AND"),
@@ -260,7 +260,7 @@ class TokensParserTest {
 
         @Test
         @DisplayName("should accept numeric criteria value")
-        void shouldAcceptNumericCriteriaValue() {
+        void shouldAcceptNumericCriteriaValue() throws ConditionSyntaxException {
             var tokens = condition(text("field1"), text("EQUALS"), number("1"));
 
             final TokensParser parser = new TokensParser();
@@ -291,7 +291,7 @@ class TokensParserTest {
     class StartsWithOperator {
         @Test
         @DisplayName("should parse all forms of STARTS_WITH operator")
-        void shouldParseAllStartsWithOperator() {
+        void shouldParseAllStartsWithOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     // Case insensitive
                     text("field1"), text("STARTS_WITH_IC"), quotedString("a"), text("AND"),
@@ -329,7 +329,7 @@ class TokensParserTest {
     class EndsWithOperator {
         @Test
         @DisplayName("should parse all forms of ENDS_WITH operator")
-        void shouldParseAllEndsWithOperator() {
+        void shouldParseAllEndsWithOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     // Case insensitive
                     text("field1"), text("ENDS_WITH_IC"), quotedString("a"), text("AND"),
@@ -367,7 +367,7 @@ class TokensParserTest {
     class ContainsOperator {
         @Test
         @DisplayName("should parse all forms of CONTAINS operator")
-        void shouldParseAllContainsOperator() {
+        void shouldParseAllContainsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     // Case insensitive
                     text("field1"), text("CONTAINS_IC"), quotedString("a"), text("AND"),
@@ -385,7 +385,7 @@ class TokensParserTest {
 
         @Test
         @DisplayName("should accept numeric criteria value")
-        void shouldAcceptNumericCriteriaValue() {
+        void shouldAcceptNumericCriteriaValue() throws ConditionSyntaxException {
             var tokens = condition(text("field1"), text("CONTAINS"), number("1"));
 
             final TokensParser parser = new TokensParser();
@@ -400,7 +400,7 @@ class TokensParserTest {
     class MatchesOperator {
         @Test
         @DisplayName("should parse MATCHES operator")
-        void shouldParseMatchesOperator() {
+        void shouldParseMatchesOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     text("field1"), text("MATCHES"), quotedString("^[a-z]{3}$")
             );
@@ -433,7 +433,7 @@ class TokensParserTest {
     class HasLengthOperator {
         @Test
         @DisplayName("should parse HAS_LENGTH operator")
-        void shouldParseAllContainsOperator() {
+        void shouldParseAllContainsOperator() throws ConditionSyntaxException {
             var tokens = condition(text("field1"), text("HAS_LENGTH"), number("3"));
 
             final TokensParser parser = new TokensParser();
@@ -462,7 +462,7 @@ class TokensParserTest {
     class GreaterThanOperator {
         @Test
         @DisplayName("should parse all forms of GREATER_THAN operator")
-        void shouldParseAllEqualsOperator() {
+        void shouldParseAllEqualsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     text("field1"), operator(">"), number("2"), text("AND"),
                     text("field2"), text("GREATER_THAN"), number("2")
@@ -514,7 +514,7 @@ class TokensParserTest {
     class GreaterOrEqualsOperator {
         @Test
         @DisplayName("should parse all forms of GREATER_OR_EQUALS operator")
-        void shouldParseAllEqualsOperator() {
+        void shouldParseAllEqualsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     text("field1"), operator(">="), number("2"), text("AND"),
                     text("field2"), text("GREATER_OR_EQUALS"), number("2")
@@ -566,7 +566,7 @@ class TokensParserTest {
     class LessThanOperator {
         @Test
         @DisplayName("should parse all forms of LESS_THAN operator")
-        void shouldParseAllEqualsOperator() {
+        void shouldParseAllEqualsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     text("field1"), operator("<"), number("2"), text("AND"),
                     text("field2"), text("LESS_THAN"), number("2")
@@ -618,7 +618,7 @@ class TokensParserTest {
     class LessOrEqualsOperator {
         @Test
         @DisplayName("should parse all forms of LESS_OR_EQUALS operator")
-        void shouldParseAllEqualsOperator() {
+        void shouldParseAllEqualsOperator() throws ConditionSyntaxException {
             var tokens = condition(
                     text("field1"), operator("<="), number("2"), text("AND"),
                     text("field2"), text("LESS_OR_EQUALS"), number("2")
