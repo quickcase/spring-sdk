@@ -2,7 +2,6 @@ package app.quickcase.sdk.spring.definition.model;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import lombok.Builder;
 import lombok.NonNull;
@@ -25,9 +24,9 @@ public record DataField(
 ) implements Field {
     @Builder
     public record Validation(
-            Integer min,
-            Optional<Integer> max,
-            Optional<String> pattern
+            String min,
+            String max,
+            String pattern
     ) {}
 
     @Builder
