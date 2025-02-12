@@ -1,8 +1,12 @@
 import org.gradle.api.JavaVersion.VERSION_21
 
+group = "app.quickcase"
+version = "0.1.0"
+
 plugins {
     `java-library`
     `jacoco`
+    `maven-publish`
     id("io.freefair.lombok") version "8.12.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -14,6 +18,39 @@ java {
 
 repositories {
     mavenCentral()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("springSdk") {
+            from(components["java"])
+
+            pom {
+                url.set("https://github.com/quickcase/spring-sdk.git")
+            }
+
+            // Capture dependency versions resolved from Spring Boot BOM via dependency management
+            versionMapping {
+                usage("java-api") {
+                    fromResolutionOf("runtimeClasspath")
+                }
+                usage("java-runtime"){
+                    fromResolutionResult()
+                }
+            }
+
+            repositories {
+                maven {
+                    name = "github"
+                    url = uri("https://maven.pkg.github.com/quickcase/spring-sdk")
+                    credentials {
+                        username = project.findProperty("github.user") as String? ?: System.getenv("GH_USERNAME")
+                        password = project.findProperty("github.key") as String? ?: System.getenv("GH_TOKEN")
+                    }
+                }
+            }
+        }
+    }
 }
 
 val versions = mapOf(
