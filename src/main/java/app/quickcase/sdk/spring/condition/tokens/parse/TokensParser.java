@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import app.quickcase.sdk.spring.condition.ConditionNode;
 import app.quickcase.sdk.spring.condition.tokens.Token;
-import app.quickcase.sdk.spring.condition.tokens.parse.error.SyntaxException;
+import app.quickcase.sdk.spring.condition.ConditionSyntaxException;
 import app.quickcase.sdk.spring.condition.tokens.parse.state.ParsingState;
 
 /**
@@ -28,7 +28,7 @@ public class TokensParser {
                                                            .filter((posState) -> posState.accept(token))
                                                            .findFirst();
             if (nextState.isEmpty()) {
-                throw new SyntaxException(String.format(
+                throw new ConditionSyntaxException(String.format(
                     "Unexpected token %s, expected one of: %s",
                     token,
                     formatStates(nextPossibleStates)
@@ -42,7 +42,7 @@ public class TokensParser {
         // Validate final state
         final ParsingState[] endStates = state.nextStates(context);
         if (!Arrays.asList(endStates).contains(ParsingState.END)) {
-            throw new SyntaxException("Unexpected end of condition, expected one of: " + formatStates(endStates));
+            throw new ConditionSyntaxException("Unexpected end of condition, expected one of: " + formatStates(endStates));
         }
 
         return context.rootNodes();
