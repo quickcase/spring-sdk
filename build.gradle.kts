@@ -1,7 +1,7 @@
 import org.gradle.api.JavaVersion.VERSION_21
 
 group = "app.quickcase"
-version = "0.2.0"
+version = "0.2.1"
 
 plugins {
     `java-library`
