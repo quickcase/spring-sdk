@@ -10,7 +10,9 @@ public enum Metadata {
     STATE("[state]"),
     CLASSIFICATION("[classification]"),
     CREATED_AT("[createdAt]"),
-    LAST_MODIFIED_AT("[lastModifiedAt]");
+    LAST_MODIFIED_AT("[lastModifiedAt]"),
+    // CaseLink metadata
+    SOURCE_FIELD_PATH("[sourceFieldPath]");
 
     private final String path;
 
@@ -37,6 +39,7 @@ public enum Metadata {
             case "classification", "security_classification" -> CLASSIFICATION;
             case "createdat", "created", "created_date" -> CREATED_AT;
             case "lastmodifiedat", "modified", "last_modified", "last_modified_date" -> LAST_MODIFIED_AT;
+            case "sourcefieldpath" -> SOURCE_FIELD_PATH;
             default -> throw new IllegalArgumentException("Invalid metadata path: " + path);
         };
     }

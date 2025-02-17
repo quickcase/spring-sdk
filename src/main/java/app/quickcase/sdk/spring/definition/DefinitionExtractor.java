@@ -70,6 +70,7 @@ public class DefinitionExtractor {
                                                 .name("Classification")
                                                 .label("Default record classification")
                                                 .build();
+            default -> throw new IllegalArgumentException("Path not supported in definition context: " + path);
         };
     }
 

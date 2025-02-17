@@ -7,13 +7,17 @@ import app.quickcase.sdk.spring.definition.model.MetadataField;
 import app.quickcase.sdk.spring.definition.model.RecordType;
 import app.quickcase.sdk.spring.definition.model.Schema;
 import app.quickcase.sdk.spring.path.FieldPath;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DefinitionExtractorTest {
 
@@ -137,6 +141,21 @@ class DefinitionExtractorTest {
                                  .label("Date and time of last modification")
                                  .build()
             ));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "[sourceFieldPath]"
+        })
+        @DisplayName("should throw error for paths not supported in definition context")
+        void shouldThrowErrorForPathsNotSupported(String path) {
+            var extractor = new DefinitionExtractor(recordType());
+            var error = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> extractor.extractField(FieldPath.ofMetadata(path))
+            );
+
+            assertThat(error.getMessage(), equalTo("Path not supported in definition context: " + path));
         }
     }
 

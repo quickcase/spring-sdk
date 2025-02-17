@@ -119,6 +119,16 @@ class MetadataTest {
         void shouldReturnLastModifiedAt(String path) {
             assertThat(Metadata.fromPath(path), is(Metadata.LAST_MODIFIED_AT));
         }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "[sourcefieldpath]",
+                "[SourceFieldPATH]", // Case insensitive
+        })
+        @DisplayName("should return sourceFieldPath metadata")
+        void shouldReturnSourceFieldPath(String path) {
+            assertThat(Metadata.fromPath(path), is(Metadata.SOURCE_FIELD_PATH));
+        }
     }
 
 }
