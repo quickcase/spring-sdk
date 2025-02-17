@@ -70,7 +70,12 @@ public class DefinitionExtractor {
                                                 .name("Classification")
                                                 .label("Default record classification")
                                                 .build();
-            default -> throw new IllegalArgumentException("Path not supported in definition context: " + path);
+            // CaseLink metadata
+            case SOURCE_FIELD_PATH -> MetadataField.builder()
+                                                   .id(path.toString())
+                                                   .name("Link source field")
+                                                   .label("Path of the field from which the link originated")
+                                                   .build();
         };
     }
 
