@@ -26,7 +26,8 @@ class SemanticConditionValidatorTest {
         var condition = new Condition(
                 new Criteria[][]{
                         new Criteria[]{
-                                Criteria.builder().path("complex1").build()
+                                Criteria.builder().path("complex1").build(),
+                                Criteria.builder().path("[sourceFieldPath]").build()
                         },
                         new Criteria[]{
                                 Criteria.builder().path("complex1.member1").build(),

@@ -143,19 +143,19 @@ class DefinitionExtractorTest {
             ));
         }
 
-        @ParameterizedTest
-        @ValueSource(strings = {
-                "[sourceFieldPath]"
-        })
-        @DisplayName("should throw error for paths not supported in definition context")
-        void shouldThrowErrorForPathsNotSupported(String path) {
+        @Test
+        @DisplayName("should return sourceFieldPath field")
+        void shouldReturnSourceFieldPathField() {
             var extractor = new DefinitionExtractor(recordType());
-            var error = assertThrows(
-                    IllegalArgumentException.class,
-                    () -> extractor.extractField(FieldPath.ofMetadata(path))
-            );
+            var field = extractor.extractField(FieldPath.ofMetadata("[sourceFieldPath]"));
 
-            assertThat(error.getMessage(), equalTo("Path not supported in definition context: " + path));
+            assertThat(field, equalTo(
+                    MetadataField.builder()
+                                 .id("[sourceFieldPath]")
+                                 .name("Link source field")
+                                 .label("Path of the field from which the link originated")
+                                 .build()
+            ));
         }
     }
 
