@@ -7,7 +7,7 @@ plugins {
     `java-library`
     `jacoco`
     `maven-publish`
-    id("io.freefair.lombok") version "8.12.1"
+    id("io.freefair.lombok") version "8.12.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
