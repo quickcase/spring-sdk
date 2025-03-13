@@ -13,6 +13,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.event.Level;
 import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.http.HttpMethod;
 
@@ -23,14 +24,15 @@ public class AccessLogFilter implements Filter {
     private static final String KEY_STATUS = "responseCode";
     private static final String KEY_DURATION = "duration";
 
-    private final Clock clock;
+    private final static Clock clock = Clock.systemDefaultZone();
+    private final AccessLogLevelStrategy logLevelStrategy;
 
     public AccessLogFilter() {
-        this.clock = Clock.systemDefaultZone();
+        this.logLevelStrategy = new DefaultAccessLogLevelStrategy();
     }
 
-    public AccessLogFilter(Clock clock) {
-        this.clock = clock;
+    public AccessLogFilter(AccessLogLevelStrategy logLevelStrategy) {
+        this.logLevelStrategy = logLevelStrategy;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class AccessLogFilter implements Filter {
         final String method = httpRequest.getMethod();
         final String requestURI = httpRequest.getRequestURI();
 
-        log.atTrace()
+        log.atLevel(logLevelStrategy.onReceived(method, requestURI))
            .addKeyValue(KEY_METHOD, method)
            .addKeyValue(KEY_URI, requestURI)
            .log("Request received: {} {}", method, requestURI);
@@ -56,17 +58,17 @@ public class AccessLogFilter implements Filter {
             final Duration duration = Duration.between(start, clock.instant());
             final int status = httpResponse.getStatus();
 
-            successLogBuilder(method)
-                    .addKeyValue(KEY_METHOD, method)
-                    .addKeyValue(KEY_URI, requestURI)
-                    .addKeyValue(KEY_STATUS, status)
-                    .addKeyValue(KEY_DURATION, duration.toMillis())
-                    .log("Request processed ({}) in {}ms: {} {}", status, duration.toMillis(), method, requestURI);
+            log.atLevel(logLevelStrategy.onCompleted(method, requestURI, status))
+               .addKeyValue(KEY_METHOD, method)
+               .addKeyValue(KEY_URI, requestURI)
+               .addKeyValue(KEY_STATUS, status)
+               .addKeyValue(KEY_DURATION, duration.toMillis())
+               .log("Request processed ({}) in {}ms: {} {}", status, duration.toMillis(), method, requestURI);
 
         } catch (Exception exception) {
             final Duration duration = Duration.between(start, clock.instant());
 
-            log.atError()
+            log.atLevel(logLevelStrategy.onException(method, requestURI, exception))
                .addKeyValue(KEY_METHOD, method)
                .addKeyValue(KEY_URI, requestURI)
                .addKeyValue(KEY_DURATION, duration.toMillis())
