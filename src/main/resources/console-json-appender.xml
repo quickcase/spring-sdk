@@ -10,13 +10,6 @@ initialization performed by Boot
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>${CONSOLE_LOG_THRESHOLD}</level>
         </filter>
-        <encoder class="ch.qos.logback.classic.encoder.JsonEncoder">
-            <withSequenceNumber>false</withSequenceNumber>
-            <withNanoseconds>false</withNanoseconds>
-            <withContext>false</withContext>
-            <withMessage>false</withMessage>
-            <withArguments>false</withArguments>
-            <withFormattedMessage>true</withFormattedMessage>
-        </encoder>
+        <encoder class="app.quickcase.sdk.spring.logging.logback.JsonEncoder" />
     </appender>
 </included>
