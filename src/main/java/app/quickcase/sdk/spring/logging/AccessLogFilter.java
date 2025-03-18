@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.spi.LoggingEventBuilder;
-import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerMapping;
 
 @Slf4j
@@ -98,12 +97,5 @@ public class AccessLogFilter implements Filter {
         if (pattern != null) {
             logBuilder.addKeyValue(KEY_MATCH, pattern);
         }
-    }
-
-    private LoggingEventBuilder successLogBuilder (String httpMethod) {
-        if (HttpMethod.OPTIONS.matches(httpMethod)) {
-            return log.atDebug();
-        }
-        return log.atInfo();
     }
 }
