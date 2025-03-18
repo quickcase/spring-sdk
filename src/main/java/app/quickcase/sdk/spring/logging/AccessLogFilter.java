@@ -13,7 +13,6 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.event.Level;
 import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.HandlerMapping;
@@ -24,6 +23,7 @@ public class AccessLogFilter implements Filter {
     private static final String KEY_URI = "uri";
     private static final String KEY_STATUS = "status";
     private static final String KEY_DURATION = "duration";
+    private static final String KEY_MATCH = "match";
 
     private final static Clock clock = Clock.systemDefaultZone();
     private final AccessLogLevelStrategy logLevelStrategy;
@@ -59,23 +59,44 @@ public class AccessLogFilter implements Filter {
             final Duration duration = Duration.between(start, clock.instant());
             final int status = httpResponse.getStatus();
 
-            log.atLevel(logLevelStrategy.onCompleted(method, requestURI, status))
-               .addKeyValue(KEY_METHOD, method)
-               .addKeyValue(KEY_URI, requestURI)
-               .addKeyValue(KEY_STATUS, status)
-               .addKeyValue(KEY_DURATION, duration.toMillis())
-               .log("Request processed ({}) in {}ms: {} {}", status, duration.toMillis(), method, requestURI);
+            var completedLogBuilder = log.atLevel(logLevelStrategy.onCompleted(method, requestURI, status))
+                                         .addKeyValue(KEY_METHOD, method)
+                                         .addKeyValue(KEY_URI, requestURI)
+                                         .addKeyValue(KEY_STATUS, status)
+                                         .addKeyValue(KEY_DURATION, duration.toMillis());
+
+            addPatternMatch(httpRequest, completedLogBuilder);
+
+            completedLogBuilder.log("Request processed ({}) in {}ms: {} {}", status, duration.toMillis(), method, requestURI);
 
         } catch (Exception exception) {
             final Duration duration = Duration.between(start, clock.instant());
 
-            log.atLevel(logLevelStrategy.onException(method, requestURI, exception))
-               .addKeyValue(KEY_METHOD, method)
-               .addKeyValue(KEY_URI, requestURI)
-               .addKeyValue(KEY_DURATION, duration.toMillis())
-               .log("Request failed in {}ms: {} {} ", duration.toMillis(), method, requestURI);
+            var errorLogBuilder = log.atLevel(logLevelStrategy.onException(method, requestURI, exception))
+                                     .addKeyValue(KEY_METHOD, method)
+                                     .addKeyValue(KEY_URI, requestURI)
+                                     .addKeyValue(KEY_DURATION, duration.toMillis());
+
+            addPatternMatch(httpRequest, errorLogBuilder);
+
+            errorLogBuilder.log("Request failed in {}ms: {} {} ", duration.toMillis(), method, requestURI);
 
             throw exception;
+        }
+    }
+
+    /**
+     * Extract and populate the matching URI pattern, if available, in the access log KVP.
+     * The matrix of variable for that matching pattern is ignored as it would duplicate the MDC in most cases.
+     *
+     * @param httpRequest Request from which to extract the matched pattern
+     * @param logBuilder Logging event builder to which the pattern KVP should be added
+     */
+    private void addPatternMatch(HttpServletRequest httpRequest, LoggingEventBuilder logBuilder) {
+        var pattern = (String) httpRequest.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE);
+
+        if (pattern != null) {
+            logBuilder.addKeyValue(KEY_MATCH, pattern);
         }
     }
 
