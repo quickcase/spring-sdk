@@ -16,12 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.event.Level;
 import org.slf4j.spi.LoggingEventBuilder;
 import org.springframework.http.HttpMethod;
+import org.springframework.web.servlet.HandlerMapping;
 
 @Slf4j
 public class AccessLogFilter implements Filter {
-    private static final String KEY_METHOD = "requestMethod";
-    private static final String KEY_URI = "requestUri";
-    private static final String KEY_STATUS = "responseCode";
+    private static final String KEY_METHOD = "method";
+    private static final String KEY_URI = "uri";
+    private static final String KEY_STATUS = "status";
     private static final String KEY_DURATION = "duration";
 
     private final static Clock clock = Clock.systemDefaultZone();
