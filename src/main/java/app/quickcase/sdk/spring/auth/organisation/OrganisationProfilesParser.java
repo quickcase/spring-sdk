@@ -10,6 +10,10 @@ import app.quickcase.sdk.spring.auth.SecurityClassification;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @deprecated Organisations deprecated in favour of role-driven authorisation; scheduled for removal in v2.0.0
+ */
+@Deprecated(forRemoval = true)
 @Slf4j
 public class OrganisationProfilesParser {
     private static final String NODE_ACCESS = "access";

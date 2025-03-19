@@ -52,6 +52,10 @@ public class ClaimNamesProvider {
         return prefix + groups;
     }
 
+    /**
+     * @deprecated Organisations deprecated in favour of role-driven authorisation; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
     public String organisations() {
         return prefix + organisations;
     }

@@ -8,6 +8,10 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @deprecated Organisations deprecated in favour of role-driven authorisation; scheduled for removal in v2.0.0
+ */
+@Deprecated(forRemoval = true)
 @Value
 @Builder
 @Slf4j

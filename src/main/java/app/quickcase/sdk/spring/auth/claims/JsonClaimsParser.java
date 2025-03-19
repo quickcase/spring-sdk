@@ -9,6 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+ */
+@Deprecated(forRemoval = true)
 @Slf4j
 public class JsonClaimsParser implements ClaimsParser {
     private static final ObjectMapper MAPPER = new ObjectMapper();
