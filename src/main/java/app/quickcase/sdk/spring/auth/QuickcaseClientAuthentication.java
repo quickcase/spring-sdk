@@ -1,0 +1,72 @@
+package app.quickcase.sdk.spring.auth;
+
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+
+import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
+import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
+import lombok.NonNull;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.jwt.Jwt;
+
+public class QuickcaseClientAuthentication extends QuickcaseAuthentication {
+    private static final String DEFAULT_NAME = "System";
+    private static final OrganisationProfile ORGANISATION_PROFILE = clientProfile();
+
+    private static OrganisationProfile clientProfile() {
+        return OrganisationProfile.builder()
+                                  .accessLevel(AccessLevel.ORGANISATION)
+                                  .securityClassification(SecurityClassification.PUBLIC)
+                                  .build();
+    }
+
+    private final String clientId;
+    private final Set<String> roles;
+
+    public QuickcaseClientAuthentication(
+            @NonNull Jwt jwt,
+            @NonNull String clientId,
+            @NonNull Collection<? extends GrantedAuthority> authorities,
+            @NonNull Set<String> roles
+    ) {
+        super(jwt, authorities);
+        this.clientId = clientId;
+        this.roles = roles;
+        this.setAuthenticated(true);
+    }
+
+    @Override
+    public String getId() {
+        return clientId;
+    }
+
+    @Override
+    public String getName() {
+        return DEFAULT_NAME;
+    }
+
+    @Override
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    @Override
+    public Set<String> getGroups() {
+        return Set.of();
+    }
+
+    /**
+     * @deprecated Organisation profiles are being phased out in favour of fully role-driven authorisation.
+     */
+    @Deprecated
+    @Override
+    public OrganisationProfile getOrganisationProfile(String organisationId) {
+        return ORGANISATION_PROFILE;
+    }
+
+    @Override
+    public Optional<UserInfo> getUserInfo() {
+        return Optional.empty();
+    }
+}

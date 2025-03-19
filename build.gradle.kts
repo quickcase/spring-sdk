@@ -83,6 +83,12 @@ testing {
     }
 }
 
+tasks.withType(JavaCompile::class).configureEach {
+    // Explicitly required since Spring 6.1 for mapping of application properties via constructor binding
+    // https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#parameter-name-retention
+    options.compilerArgs.add("-parameters")
+}
+
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
