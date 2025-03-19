@@ -13,6 +13,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+ */
+@Deprecated(forRemoval = true)
 @Slf4j
 public class UserInfoGateway {
     private static final ObjectMapper MAPPER = new ObjectMapper();

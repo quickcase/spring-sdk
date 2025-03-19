@@ -26,6 +26,11 @@ public abstract class QuickcaseAuthentication extends JwtAuthenticationToken {
         super(jwt, authorities);
     }
 
+    /**
+     * @deprecated Access token should not be used for downstream authentication; scheduled for removal in v2.0.0;
+     * if needed the token can still be accessed via {@link JwtAuthenticationToken#getToken()}
+     */
+    @Deprecated(forRemoval = true)
     public String getAccessToken() {
         return getToken().getTokenValue();
     }
@@ -37,9 +42,9 @@ public abstract class QuickcaseAuthentication extends JwtAuthenticationToken {
     public abstract Set<String> getGroups();
 
     /**
-     * @deprecated Organisation profiles are being phased out in favour of fully role-driven authorisation.
+     * @deprecated Organisations deprecated in favour of role-driven authorisation; scheduled for removal in v2.0.0
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public abstract OrganisationProfile getOrganisationProfile(String organisationId);
 
     public abstract Optional<UserInfo> getUserInfo();

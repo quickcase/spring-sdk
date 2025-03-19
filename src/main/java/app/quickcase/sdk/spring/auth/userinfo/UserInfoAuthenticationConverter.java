@@ -11,6 +11,10 @@ import app.quickcase.sdk.spring.auth.claims.JsonClaimsParser;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/**
+ * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+ */
+@Deprecated(forRemoval = true)
 public class UserInfoAuthenticationConverter extends QuickcaseAuthenticationConverter {
     private static final String CLAIM_SUB = "sub";
 

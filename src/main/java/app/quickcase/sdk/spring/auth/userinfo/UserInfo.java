@@ -46,7 +46,7 @@ public class UserInfo implements Principal, UserDetails {
     /**
      * @deprecated Organisation profiles are being phased out in favour of fully role-driven authorisation.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @NonNull
     Map<String, OrganisationProfile> organisationProfiles;
 

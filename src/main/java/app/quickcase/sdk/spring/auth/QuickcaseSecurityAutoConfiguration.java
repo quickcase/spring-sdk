@@ -30,12 +30,17 @@ public class QuickcaseSecurityAutoConfiguration {
         return new ClaimNamesProvider(oidcConfig.getClaims());
     }
 
+
     @Bean
     @ConditionalOnMissingBean(UserInfoExtractor.class)
     public UserInfoExtractor createUserInfoExtractor(ClaimNamesProvider claimNamesProvider) {
         return new UserInfoExtractor(claimNamesProvider);
     }
 
+    /**
+     * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
     @Bean
     @ConditionalOnMissingBean(UserInfoGateway.class)
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "user-info", matchIfMissing = true)
@@ -43,6 +48,10 @@ public class QuickcaseSecurityAutoConfiguration {
         return new UserInfoGateway(new URI(oidcConfig.getUserInfoUri()), new RestTemplate());
     }
 
+    /**
+     * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
     @Bean
     @ConditionalOnMissingBean(QuickcaseAuthenticationConverter.class)
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "user-info", matchIfMissing = true)
