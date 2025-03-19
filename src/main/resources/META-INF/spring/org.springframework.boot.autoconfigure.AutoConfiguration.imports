@@ -1,1 +1,2 @@
+app.quickcase.sdk.spring.auth.QuickcaseSecurityAutoConfiguration
 app.quickcase.sdk.spring.logging.LoggingAutoConfiguration
