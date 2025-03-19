@@ -51,7 +51,7 @@ public class QuickcaseAuthenticationConverter implements Converter<Jwt, Quickcas
     }
 
     protected QuickcaseAuthentication userAuthentication(Jwt jwt, Set<String> scopes) {
-        final ClaimsParser claims = new JwtClaimsParser(jwt.getClaims());
+        final ClaimsParser claims = new JwtClaimsParser(jwt);
         final UserInfo userInfo = userInfoExtractor.extract(claims);
         return new QuickcaseUserAuthentication(jwt, authorities(scopes, userInfo.getRoles()), userInfo);
     }

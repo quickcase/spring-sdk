@@ -1,13 +1,9 @@
 package app.quickcase.sdk.spring.auth.claims;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -22,9 +18,9 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should return empty optional when claim missing")
         void claimMissing() {
-            final ClaimsParser parser = new JwtClaimsParser(new HashMap<>());
+            var parser = new JwtClaimsParser(jwtBuilder().claim("claim1", "value1").build());
 
-            final Optional<String> missingClaim = parser.getString("any");
+            var missingClaim = parser.getString("any");
 
             assertThat(missingClaim.isEmpty(), is(true));
         }
@@ -32,9 +28,10 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should return claim as String when present as String")
         void claimPresentAsString() {
-            final ClaimsParser parser = new JwtClaimsParser(mapWith("claim1", "value1"));
+            var jwt = jwtBuilder().claim("claim1", "value1").build();
+            var parser = new JwtClaimsParser(jwt);
 
-            final Optional<String> claim1 = parser.getString("claim1");
+            var claim1 = parser.getString("claim1");
 
             assertThat(claim1.orElseThrow(), equalTo("value1"));
         }
@@ -42,9 +39,10 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should cast value to String when present but not String")
         void claimPresentAsOther() {
-            final ClaimsParser parser = new JwtClaimsParser(mapWith("claim1", 1));
+            var jwt = jwtBuilder().claim("claim1", 1).build();
+            var parser = new JwtClaimsParser(jwt);
 
-            final Optional<String> claim1 = parser.getString("claim1");
+            var claim1 = parser.getString("claim1");
 
             assertThat(claim1.orElseThrow(), equalTo("1"));
         }
@@ -56,9 +54,9 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should return empty optional when claim missing")
         void claimMissing() {
-            final ClaimsParser parser = new JwtClaimsParser(new HashMap<>());
+            var parser = new JwtClaimsParser(jwtBuilder().claim("claim1", "value1").build());
 
-            final Optional<ObjectNode> missingClaim = parser.getObject("any");
+            var missingClaim = parser.getObject("any");
 
             assertThat(missingClaim.isEmpty(), is(true));
         }
@@ -66,9 +64,10 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should parse JSON string claim into ObjectNode when present")
         void claimPresentAsJsonString() {
-            final ClaimsParser parser = new JwtClaimsParser(mapWith("claim1", "{\"key\": \"value\"}"));
+            var jwt = jwtBuilder().claim("claim1", "{\"key\": \"value\"}").build();
+            var parser = new JwtClaimsParser(jwt);
 
-            final Optional<ObjectNode> claim1 = parser.getObject("claim1");
+            var claim1 = parser.getObject("claim1");
 
             assertThat(claim1.orElseThrow().get("key").asText(), equalTo("value"));
         }
@@ -76,9 +75,10 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should return empty optional when claim is non-object")
         void claimMissingAsNonObject() {
-            final ClaimsParser parser = new JwtClaimsParser(mapWith("claim1", "[]"));
+            var jwt = jwtBuilder().claim("claim1", "[]").build();
+            var parser = new JwtClaimsParser(jwt);
 
-            final Optional<ObjectNode> claim1 = parser.getObject("claim1");
+            var claim1 = parser.getObject("claim1");
 
             assertThat(claim1.isEmpty(), is(true));
         }
@@ -87,17 +87,17 @@ class JwtClaimsParserTest {
         @Test
         @DisplayName("should ignore non-parseable claims (JSON not valid)")
         void claimMissingAsNonParseableString() {
-            final ClaimsParser parser = new JwtClaimsParser(mapWith("claim1", "{\"key\""));
+            var jwt = jwtBuilder().claim("claim1", "{\"key\"").build();
+            var parser = new JwtClaimsParser(jwt);
 
-            final Optional<ObjectNode> claim1 = parser.getObject("claim1");
+            var claim1 = parser.getObject("claim1");
 
             assertThat(claim1.isEmpty(), is(true));
         }
     }
 
-    private Map<String, Object> mapWith(String key, Object value) {
-        final HashMap<String, Object> map = new HashMap<>();
-        map.put(key, value);
-        return map;
+    private Jwt.Builder jwtBuilder() {
+        return Jwt.withTokenValue("token")
+                  .header("alg", "none");
     }
 }
