@@ -25,6 +25,13 @@ public class OidcConfig {
     String jwkSetUri;
     String userInfoUri;
     String openidScope;
+    /**
+     * One of: `jwt-access-token`, `user-info`
+     *
+     * @deprecated only `jwt-access-token` should be used going forward; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
+    String mode;
     Claims claims;
 
     @ConstructorBinding
@@ -33,12 +40,14 @@ public class OidcConfig {
             String jwkSetUri,
             String userInfoUri,
             @DefaultValue(OPENID_SCOPE) String openidScope,
+            @DefaultValue(MODE) String mode,
             @DefaultValue Claims claims
     ) {
         this.authorisationStrategy = authorisationStrategy;
         this.jwkSetUri = jwkSetUri;
         this.userInfoUri = userInfoUri;
         this.openidScope = openidScope;
+        this.mode = mode;
         this.claims = claims;
     }
 
