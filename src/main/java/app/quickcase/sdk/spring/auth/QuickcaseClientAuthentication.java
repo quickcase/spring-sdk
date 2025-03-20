@@ -21,24 +21,24 @@ public class QuickcaseClientAuthentication extends QuickcaseAuthentication {
                                   .build();
     }
 
-    private final String clientId;
+    private final String subject;
     private final Set<String> roles;
 
     public QuickcaseClientAuthentication(
             @NonNull Jwt jwt,
-            @NonNull String clientId,
+            @NonNull String subject,
             @NonNull Collection<? extends GrantedAuthority> authorities,
             @NonNull Set<String> roles
     ) {
         super(jwt, authorities);
-        this.clientId = clientId;
+        this.subject = subject;
         this.roles = roles;
         this.setAuthenticated(true);
     }
 
     @Override
     public String getId() {
-        return clientId;
+        return subject;
     }
 
     @Override
