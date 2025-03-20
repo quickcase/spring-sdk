@@ -17,20 +17,20 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 class QuickcaseClientAuthenticationTest {
     private static final String ACCESS_TOKEN = "access-token-123";
-    private static final String CLIENT_ID = "client-123";
+    private static final String SUBJECT = "subject-123";
 
     private static final Jwt JWT = Jwt.withTokenValue(ACCESS_TOKEN)
                                       .header("alg", "HS256")
-                                      .claim("sub", CLIENT_ID)
+                                      .claim("sub", SUBJECT)
                                       .claim("scope", "SCOPE-1 SCOPE-2")
-                                      .claim("client_id", CLIENT_ID)
+                                      .claim("client_id", "client-123")
                                       .build();
 
     @Test
-    @DisplayName("should use OAuth2 client ID as identifier")
+    @DisplayName("should use OAuth2 subject as identifier")
     void getId() {
         final QuickcaseAuthentication auth = clientAuthentication();
-        assertThat(auth.getId(), equalTo(CLIENT_ID));
+        assertThat(auth.getId(), equalTo(SUBJECT));
     }
 
     @Test
@@ -106,6 +106,6 @@ class QuickcaseClientAuthenticationTest {
     private QuickcaseAuthentication clientAuthentication() {
         final Set<String> scopes = Set.of("ROLE-1", "ROLE-2");
         final Set<GrantedAuthority> authorities = scopes.stream().map(SimpleGrantedAuthority::new).collect(toSet());
-        return new QuickcaseClientAuthentication(JWT, CLIENT_ID, authorities, scopes);
+        return new QuickcaseClientAuthentication(JWT, SUBJECT, authorities, scopes);
     }
 }
