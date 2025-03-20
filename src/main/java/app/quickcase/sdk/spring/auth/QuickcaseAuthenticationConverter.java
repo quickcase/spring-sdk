@@ -5,9 +5,11 @@ import java.util.stream.Stream;
 
 import app.quickcase.sdk.spring.auth.claims.ClaimsParser;
 import app.quickcase.sdk.spring.auth.claims.JwtClaimsParser;
+import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,16 +22,19 @@ import static java.util.stream.Collectors.toSet;
 public class QuickcaseAuthenticationConverter implements Converter<Jwt, QuickcaseAuthentication> {
     private static final String SCOPE_DELIMITER = " ";
 
+    private final JwtClientIdConverter clientIdConverter;
     protected final UserInfoExtractor userInfoExtractor;
     protected final String openidScope;
 
-    public QuickcaseAuthenticationConverter(UserInfoExtractor userInfoExtractor, String openidScope) {
+    public QuickcaseAuthenticationConverter(JwtClientIdConverter clientIdConverter, UserInfoExtractor userInfoExtractor, String openidScope) {
+        this.clientIdConverter = clientIdConverter;
         this.userInfoExtractor = userInfoExtractor;
         this.openidScope = openidScope;
     }
 
     @Override
-    public QuickcaseAuthentication convert(Jwt source) {
+    public QuickcaseAuthentication convert(@NonNull Jwt source) {
+        final String clientId = clientIdConverter.convert(source);
         final String scopeStr = source.getClaimAsString("scope");
 
         if (scopeStr == null) {
@@ -39,21 +44,21 @@ public class QuickcaseAuthenticationConverter implements Converter<Jwt, Quickcas
         final Set<String> scopes = Set.of(scopeStr.split(SCOPE_DELIMITER));
 
         if (scopes.contains(openidScope)) {
-            return userAuthentication(source, scopes);
+            return userAuthentication(source, scopes, clientId);
         }
 
-        return clientAuthentication(source, scopes);
+        return clientAuthentication(source, scopes, clientId);
     }
 
-    protected QuickcaseAuthentication clientAuthentication(Jwt jwt, Set<String> scopes) {
+    protected QuickcaseAuthentication clientAuthentication(Jwt jwt, Set<String> scopes, String clientId) {
         final String subject = jwt.getSubject();
-        return new QuickcaseClientAuthentication(jwt, subject, authorities(scopes), scopes);
+        return new QuickcaseClientAuthentication(jwt, subject, authorities(scopes), scopes, clientId);
     }
 
-    protected QuickcaseAuthentication userAuthentication(Jwt jwt, Set<String> scopes) {
+    protected QuickcaseAuthentication userAuthentication(Jwt jwt, Set<String> scopes, String clientId) {
         final ClaimsParser claims = new JwtClaimsParser(jwt);
         final UserInfo userInfo = userInfoExtractor.extract(claims);
-        return new QuickcaseUserAuthentication(jwt, authorities(scopes, userInfo.getRoles()), userInfo);
+        return new QuickcaseUserAuthentication(jwt, authorities(scopes, userInfo.getRoles()), userInfo, clientId);
     }
 
     protected final String prefixScope(String scope) {

@@ -37,6 +37,8 @@ public abstract class QuickcaseAuthentication extends JwtAuthenticationToken {
 
     public abstract String getId();
 
+    public abstract Optional<String> getClientId();
+
     public abstract Set<String> getRoles();
 
     public abstract Set<String> getGroups();

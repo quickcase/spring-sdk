@@ -1,5 +1,6 @@
 package app.quickcase.sdk.spring.auth;
 
+import java.util.Optional;
 import java.util.Set;
 
 import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
@@ -18,12 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 class QuickcaseClientAuthenticationTest {
     private static final String ACCESS_TOKEN = "access-token-123";
     private static final String SUBJECT = "subject-123";
+    private static final String CLIENT_ID = "subject-123";
 
     private static final Jwt JWT = Jwt.withTokenValue(ACCESS_TOKEN)
                                       .header("alg", "HS256")
                                       .claim("sub", SUBJECT)
                                       .claim("scope", "SCOPE-1 SCOPE-2")
-                                      .claim("client_id", "client-123")
+                                      .claim("client_id", CLIENT_ID)
                                       .build();
 
     @Test
@@ -31,6 +33,13 @@ class QuickcaseClientAuthenticationTest {
     void getId() {
         final QuickcaseAuthentication auth = clientAuthentication();
         assertThat(auth.getId(), equalTo(SUBJECT));
+    }
+
+    @Test
+    @DisplayName("should have optional client ID")
+    void getClientId() {
+        final QuickcaseAuthentication auth = clientAuthentication();
+        assertThat(auth.getClientId(), equalTo(Optional.of(CLIENT_ID)));
     }
 
     @Test
@@ -106,6 +115,6 @@ class QuickcaseClientAuthenticationTest {
     private QuickcaseAuthentication clientAuthentication() {
         final Set<String> scopes = Set.of("ROLE-1", "ROLE-2");
         final Set<GrantedAuthority> authorities = scopes.stream().map(SimpleGrantedAuthority::new).collect(toSet());
-        return new QuickcaseClientAuthentication(JWT, SUBJECT, authorities, scopes);
+        return new QuickcaseClientAuthentication(JWT, SUBJECT, authorities, scopes, CLIENT_ID);
     }
 }
