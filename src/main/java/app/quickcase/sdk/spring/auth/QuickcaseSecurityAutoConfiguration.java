@@ -72,4 +72,12 @@ public class QuickcaseSecurityAutoConfiguration {
     ) {
         return new QuickcaseAuthenticationConverter(userInfoExtractor, oidcConfig.getOpenidScope());
     }
+
+    @Bean
+    public QuickcaseOAuth2ResourceServerCustomizer oauth2ResourceServerCustomizer(
+            OidcConfig oidcConfig,
+            QuickcaseAuthenticationConverter authenticationConverter
+    ) {
+        return new QuickcaseOAuth2ResourceServerCustomizer(oidcConfig, authenticationConverter);
+    }
 }
