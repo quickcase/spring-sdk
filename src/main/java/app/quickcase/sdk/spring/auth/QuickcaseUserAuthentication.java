@@ -7,6 +7,7 @@ import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -21,20 +22,29 @@ public class QuickcaseUserAuthentication extends QuickcaseAuthentication {
     }
 
     private final UserInfo userInfo;
+    @Nullable
+    private final String clientId;
 
     public QuickcaseUserAuthentication(
             @NonNull Jwt jwt,
             @NonNull Set<GrantedAuthority> authorities,
-            @NonNull UserInfo userInfo
+            @NonNull UserInfo userInfo,
+            @Nullable String clientId
     ) {
         super(jwt, authorities);
         this.userInfo = userInfo;
+        this.clientId = clientId;
         this.setAuthenticated(true);
     }
 
     @Override
     public String getId() {
         return userInfo.getSubject();
+    }
+
+    @Override
+    public Optional<String> getClientId() {
+        return Optional.ofNullable(clientId);
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.Set;
 import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import lombok.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
 
@@ -23,22 +24,31 @@ public class QuickcaseClientAuthentication extends QuickcaseAuthentication {
 
     private final String subject;
     private final Set<String> roles;
+    @Nullable
+    private final String clientId;
 
     public QuickcaseClientAuthentication(
             @NonNull Jwt jwt,
             @NonNull String subject,
             @NonNull Collection<? extends GrantedAuthority> authorities,
-            @NonNull Set<String> roles
+            @NonNull Set<String> roles,
+            @Nullable String clientId
     ) {
         super(jwt, authorities);
         this.subject = subject;
         this.roles = roles;
+        this.clientId = clientId;
         this.setAuthenticated(true);
     }
 
     @Override
     public String getId() {
         return subject;
+    }
+
+    @Override
+    public Optional<String> getClientId() {
+        return Optional.ofNullable(clientId);
     }
 
     @Override
