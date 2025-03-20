@@ -1,6 +1,7 @@
 package app.quickcase.sdk.spring.auth;
 
 public interface OidcConfigDefault {
+    String AUTHORISATION_STRATEGY = "roles";
     String NAMESPACE = "app.quickcase.claims/";
     String OPENID_SCOPE = "openid";
     String PREFIX = "";

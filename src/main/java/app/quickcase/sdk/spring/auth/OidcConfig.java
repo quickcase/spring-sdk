@@ -5,9 +5,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
+import static app.quickcase.sdk.spring.auth.OidcConfigDefault.*;
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.Claims.*;
-import static app.quickcase.sdk.spring.auth.OidcConfigDefault.OPENID_SCOPE;
-import static app.quickcase.sdk.spring.auth.OidcConfigDefault.PREFIX;
 
 /**
  * Consolidated configuration of all properties under `quickcase.oidc` namespace.
@@ -16,6 +15,13 @@ import static app.quickcase.sdk.spring.auth.OidcConfigDefault.PREFIX;
 @Value
 @ConfigurationProperties(prefix = "quickcase.oidc")
 public class OidcConfig {
+    /**
+     * One of: `legacy`, `roles`
+     *
+     * @deprecated only `roles` should be used going forward; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
+    String authorisationStrategy;
     String jwkSetUri;
     String userInfoUri;
     String openidScope;
@@ -23,11 +29,13 @@ public class OidcConfig {
 
     @ConstructorBinding
     public OidcConfig(
+            @DefaultValue(AUTHORISATION_STRATEGY) String authorisationStrategy,
             String jwkSetUri,
             String userInfoUri,
             @DefaultValue(OPENID_SCOPE) String openidScope,
             @DefaultValue Claims claims
     ) {
+        this.authorisationStrategy = authorisationStrategy;
         this.jwkSetUri = jwkSetUri;
         this.userInfoUri = userInfoUri;
         this.openidScope = openidScope;
