@@ -75,6 +75,7 @@ public class OidcConfig {
         String sub;
         String name;
         String email;
+        String account;
         String roles;
         String groups;
         String organisations;
@@ -85,6 +86,7 @@ public class OidcConfig {
         public ClaimNames(@DefaultValue(SUB) String sub,
                           @DefaultValue(NAME) String name,
                           @DefaultValue(EMAIL) String email,
+                          @DefaultValue(QC_ACCOUNT) String account,
                           @DefaultValue(QC_ROLES) String roles,
                           @DefaultValue(QC_GROUPS) String groups,
                           @DefaultValue(QC_ORGANISATIONS) String organisations,
@@ -94,6 +96,7 @@ public class OidcConfig {
             this.sub = sub;
             this.name = name;
             this.email = email;
+            this.account = account;
             this.roles = roles;
             this.groups = groups;
             this.organisations = organisations;

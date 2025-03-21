@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import app.quickcase.sdk.spring.auth.claims.JwtClaimsParser;
+import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
@@ -26,6 +27,7 @@ class QuickcaseAuthenticationConverterTest {
     private static final String ACCESS_TOKEN = "token123";
     private static final String SUBJECT = "subject-123";
     private static final String CLIENT_ID = "client-123";
+    private static final String ACCOUNT = "account-123";
     private static final String SCOPE_1 = "scope-1";
     private static final String SCOPE_2 = "scope-2";
     private static final String USER_ID = "user-456";
@@ -37,11 +39,13 @@ class QuickcaseAuthenticationConverterTest {
 
     private QuickcaseAuthenticationConverter converter;
     private JwtClientIdConverter clientIdConverter;
+    private JwtAccountConverter accountConverter;
     private UserInfoExtractor userInfoExtractor;
 
     @BeforeEach
     void setUp() {
         clientIdConverter = mock(JwtClientIdConverter.class);
+        accountConverter = mock(JwtAccountConverter.class);
         userInfoExtractor = mock(UserInfoExtractor.class);
 
         final UserPreferences preferences = UserPreferences.builder()
@@ -58,7 +62,7 @@ class QuickcaseAuthenticationConverterTest {
         when(userInfoExtractor.extract(ArgumentMatchers.any(JwtClaimsParser.class)))
                 .thenReturn(userInfo);
 
-        converter = new QuickcaseAuthenticationConverter(clientIdConverter, userInfoExtractor, OidcConfigDefault.OPENID_SCOPE);
+        converter = new QuickcaseAuthenticationConverter(clientIdConverter, accountConverter, userInfoExtractor, OidcConfigDefault.OPENID_SCOPE);
     }
 
     @Nested
@@ -93,6 +97,16 @@ class QuickcaseAuthenticationConverterTest {
             final QuickcaseAuthentication authentication = converter.convert(jwt);;
 
             assertThat(authentication.getClientId(), equalTo(Optional.of(CLIENT_ID)));
+        }
+
+        @Test
+        @DisplayName("should get account from token")
+        void shouldGetAccountFromToken() {
+            when(accountConverter.convert(jwt)).thenReturn(ACCOUNT);
+
+            var authentication = converter.convert(jwt);
+
+            assertThat(authentication.getAccount(), is(ACCOUNT));
         }
 
         @Test
@@ -148,6 +162,18 @@ class QuickcaseAuthenticationConverterTest {
         }
 
         @Test
+        @DisplayName("should get account from token")
+        void shouldGetAccountFromToken() {
+            var jwt = userJwt();
+
+            when(accountConverter.convert(jwt)).thenReturn(ACCOUNT);
+
+            var authentication = converter.convert(jwt);
+
+            assertThat(authentication.getAccount(), is(ACCOUNT));
+        }
+
+        @Test
         @DisplayName("should combine prefixed scopes and roles as authorities")
         void shouldUseRolesAsAuthorities() {
             var jwt = userJwt();
@@ -189,7 +215,7 @@ class QuickcaseAuthenticationConverterTest {
         @Test
         @DisplayName("should accept custom scope for openid")
         void shouldAcceptCustomOpenIdScope() {
-            converter = new QuickcaseAuthenticationConverter(clientIdConverter, userInfoExtractor, "custom-openid");
+            converter = new QuickcaseAuthenticationConverter(clientIdConverter, accountConverter, userInfoExtractor, "custom-openid");
 
             var jwt = userJwt("custom-openid");
             var authentication = converter.convert(jwt);

@@ -13,6 +13,7 @@ public interface OidcConfigDefault {
         String NAME = "name";
         String EMAIL = "email";
         // Private claims
+        String QC_ACCOUNT = NAMESPACE + "account";
         String QC_ROLES = NAMESPACE + "roles";
         String QC_GROUPS = NAMESPACE + "groups";
         String QC_ORGANISATIONS = NAMESPACE + "organisations";

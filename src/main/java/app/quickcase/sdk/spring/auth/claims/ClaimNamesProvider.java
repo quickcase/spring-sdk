@@ -10,6 +10,7 @@ public class ClaimNamesProvider {
     private final String sub;
     private final String name;
     private final String email;
+    private final String account;
     private final String roles;
     private final String groups;
     private final String organisations;
@@ -24,6 +25,7 @@ public class ClaimNamesProvider {
         this.sub = names.getSub();
         this.name = names.getName();
         this.email = names.getEmail();
+        this.account = names.getAccount();
         this.roles = names.getRoles();
         this.groups = names.getGroups();
         this.organisations = names.getOrganisations();
@@ -42,6 +44,10 @@ public class ClaimNamesProvider {
 
     public String email() {
         return email;
+    }
+
+    public String account() {
+        return prefix + account;
     }
 
     public String roles() {
