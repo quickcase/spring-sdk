@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class QuickcaseUserAuthenticationTest {
     private static final String ACCESS_TOKEN = "access-token-123";
     private static final String CLIENT_ID = "client-123";
+    private static final String ACCOUNT = "account-123";
     private static final String USER_ID = "user-123";
     private static final String USER_EMAIL = "test@test";
     private static final String USER_NAME = "Jean Paul";
@@ -36,9 +37,9 @@ class QuickcaseUserAuthenticationTest {
     @DisplayName("should enforce non-null fields")
     void shouldEnforceNonNullFields() {
         Assertions.assertAll(
-                () -> assertThrows(IllegalArgumentException.class, () -> new QuickcaseUserAuthentication(null, Set.of(), UserInfo.builder(USER_ID).build(), CLIENT_ID)),
-                () -> assertThrows(NullPointerException.class, () -> new QuickcaseUserAuthentication(JWT, null, UserInfo.builder(USER_ID).build(), CLIENT_ID)),
-                () -> assertThrows(NullPointerException.class, () -> new QuickcaseUserAuthentication(JWT, Set.of(), null, CLIENT_ID))
+                () -> assertThrows(IllegalArgumentException.class, () -> new QuickcaseUserAuthentication(null, Set.of(), UserInfo.builder(USER_ID).build(), CLIENT_ID, ACCOUNT)),
+                () -> assertThrows(NullPointerException.class, () -> new QuickcaseUserAuthentication(JWT, null, UserInfo.builder(USER_ID).build(), CLIENT_ID, ACCOUNT)),
+                () -> assertThrows(NullPointerException.class, () -> new QuickcaseUserAuthentication(JWT, Set.of(), null, CLIENT_ID, ACCOUNT))
         );
     }
 
@@ -54,6 +55,13 @@ class QuickcaseUserAuthenticationTest {
     void getClientId() {
         final QuickcaseAuthentication auth = userAuthentication();
         assertThat(auth.getClientId(), equalTo(Optional.of(CLIENT_ID)));
+    }
+
+    @Test
+    @DisplayName("should have account")
+    void getAccount() {
+        final QuickcaseAuthentication auth = userAuthentication();
+        assertThat(auth.getAccount(), equalTo(ACCOUNT));
     }
 
     @Test
@@ -174,6 +182,6 @@ class QuickcaseUserAuthenticationTest {
                                           .organisationProfile("org-1", profile)
                                           .build();
 
-        return new QuickcaseUserAuthentication(JWT, authorities, userInfo, CLIENT_ID);
+        return new QuickcaseUserAuthentication(JWT, authorities, userInfo, CLIENT_ID, ACCOUNT);
     }
 }

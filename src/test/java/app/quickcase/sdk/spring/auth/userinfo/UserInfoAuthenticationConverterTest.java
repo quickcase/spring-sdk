@@ -9,6 +9,7 @@ import app.quickcase.sdk.spring.auth.QuickcaseAuthentication;
 import app.quickcase.sdk.spring.auth.QuickcaseUserAuthentication;
 import app.quickcase.sdk.spring.auth.SecurityClassification;
 import app.quickcase.sdk.spring.auth.claims.JsonClaimsParser;
+import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -40,6 +41,7 @@ class UserInfoAuthenticationConverterTest {
     private static final String ROLE_2 = "role-2";
 
     private JwtClientIdConverter clientIdConverter;
+    private JwtAccountConverter accountConverter;
     private UserInfoGateway userInfoGateway;
     private UserInfoExtractor userInfoExtractor;
     private UserInfoAuthenticationConverter converter;
@@ -47,10 +49,17 @@ class UserInfoAuthenticationConverterTest {
     @BeforeEach
     void setUp() {
         clientIdConverter = mock(JwtClientIdConverter.class);
+        accountConverter = mock(JwtAccountConverter.class);
         userInfoGateway = mock(UserInfoGateway.class);
         userInfoExtractor = mock(UserInfoExtractor.class);
 
-        converter = new UserInfoAuthenticationConverter(clientIdConverter, userInfoGateway, userInfoExtractor, OidcConfigDefault.OPENID_SCOPE);
+        converter = new UserInfoAuthenticationConverter(
+                clientIdConverter,
+                accountConverter,
+                userInfoGateway,
+                userInfoExtractor,
+                OidcConfigDefault.OPENID_SCOPE
+        );
     }
 
     @Nested
@@ -172,7 +181,7 @@ class UserInfoAuthenticationConverterTest {
         @Test
         @DisplayName("should accept custom scope for openid")
         void shouldAcceptCustomOpenIdScope() {
-            converter = new UserInfoAuthenticationConverter(clientIdConverter, userInfoGateway, userInfoExtractor, "custom-openid");
+            converter = new UserInfoAuthenticationConverter(clientIdConverter, accountConverter, userInfoGateway, userInfoExtractor, "custom-openid");
 
             final QuickcaseAuthentication authentication = userAuthentication("custom-openid");
 

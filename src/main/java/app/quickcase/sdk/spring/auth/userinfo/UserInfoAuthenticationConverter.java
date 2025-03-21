@@ -8,6 +8,7 @@ import app.quickcase.sdk.spring.auth.QuickcaseAuthenticationConverter;
 import app.quickcase.sdk.spring.auth.QuickcaseUserAuthentication;
 import app.quickcase.sdk.spring.auth.claims.ClaimsParser;
 import app.quickcase.sdk.spring.auth.claims.JsonClaimsParser;
+import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -21,13 +22,19 @@ public class UserInfoAuthenticationConverter extends QuickcaseAuthenticationConv
 
     private final UserInfoGateway userInfoGateway;
 
-    public UserInfoAuthenticationConverter(JwtClientIdConverter clientIdConverter, UserInfoGateway userInfoGateway, UserInfoExtractor userInfoExtractor, String openidScope) {
-        super(clientIdConverter, userInfoExtractor, openidScope);
+    public UserInfoAuthenticationConverter(
+            JwtClientIdConverter clientIdConverter,
+            JwtAccountConverter accountConverter,
+            UserInfoGateway userInfoGateway,
+            UserInfoExtractor userInfoExtractor,
+            String openidScope
+    ) {
+        super(clientIdConverter, accountConverter, userInfoExtractor, openidScope);
         this.userInfoGateway = userInfoGateway;
     }
 
     @Override
-    protected QuickcaseUserAuthentication userAuthentication(Jwt jwt, Set<String> scopes, String clientId) {
+    protected QuickcaseUserAuthentication userAuthentication(Jwt jwt, Set<String> scopes, String clientId, String account) {
         final String subject = jwt.getSubject();
         final ClaimsParser claims = new JsonClaimsParser(userInfoGateway.getClaims(jwt.getTokenValue()));
 
@@ -35,7 +42,7 @@ public class UserInfoAuthenticationConverter extends QuickcaseAuthenticationConv
 
         final UserInfo userInfo = userInfoExtractor.extract(claims);
 
-        return new QuickcaseUserAuthentication(jwt, authorities(scopes, userInfo.getRoles()), userInfo, clientId);
+        return new QuickcaseUserAuthentication(jwt, authorities(scopes, userInfo.getRoles()), userInfo, clientId, account);
     }
 
     /**

@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import app.quickcase.sdk.spring.auth.claims.ClaimNamesProvider;
+import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoAuthenticationConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
@@ -54,6 +55,11 @@ public class QuickcaseSecurityAutoConfiguration {
         return new JwtClientIdConverter();
     }
 
+    @Bean
+    public JwtAccountConverter jwtAccountConverter(OidcConfig oidcConfig) {
+        return new JwtAccountConverter(oidcConfig.getClaims().getNames().getAccount());
+    }
+
     /**
      * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
      */
@@ -63,11 +69,18 @@ public class QuickcaseSecurityAutoConfiguration {
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "user-info", matchIfMissing = true)
     public UserInfoAuthenticationConverter createUserInfoAuthenticationConverter(
             JwtClientIdConverter clientIdConverter,
+            JwtAccountConverter accountConverter,
             UserInfoGateway userInfoGateway,
             UserInfoExtractor userInfoExtractor,
             OidcConfig oidcConfig
     ) {
-        return new UserInfoAuthenticationConverter(clientIdConverter, userInfoGateway, userInfoExtractor, oidcConfig.getOpenidScope());
+        return new UserInfoAuthenticationConverter(
+                clientIdConverter,
+                accountConverter,
+                userInfoGateway,
+                userInfoExtractor,
+                oidcConfig.getOpenidScope()
+        );
     }
 
     @Bean
@@ -75,10 +88,16 @@ public class QuickcaseSecurityAutoConfiguration {
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "jwt-access-token")
     public QuickcaseAuthenticationConverter createAccessTokenAuthenticationConverter(
             JwtClientIdConverter clientIdConverter,
+            JwtAccountConverter accountConverter,
             UserInfoExtractor userInfoExtractor,
             OidcConfig oidcConfig
     ) {
-        return new QuickcaseAuthenticationConverter(clientIdConverter, userInfoExtractor, oidcConfig.getOpenidScope());
+        return new QuickcaseAuthenticationConverter(
+                clientIdConverter,
+                accountConverter,
+                userInfoExtractor,
+                oidcConfig.getOpenidScope()
+        );
     }
 
     @Bean

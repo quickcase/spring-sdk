@@ -24,16 +24,20 @@ public class QuickcaseUserAuthentication extends QuickcaseAuthentication {
     private final UserInfo userInfo;
     @Nullable
     private final String clientId;
+    @Nullable
+    private final String account;
 
     public QuickcaseUserAuthentication(
             @NonNull Jwt jwt,
             @NonNull Set<GrantedAuthority> authorities,
             @NonNull UserInfo userInfo,
-            @Nullable String clientId
+            @Nullable String clientId,
+            @Nullable String account
     ) {
         super(jwt, authorities);
         this.userInfo = userInfo;
         this.clientId = clientId;
+        this.account = account;
         this.setAuthenticated(true);
     }
 
@@ -45,6 +49,11 @@ public class QuickcaseUserAuthentication extends QuickcaseAuthentication {
     @Override
     public Optional<String> getClientId() {
         return Optional.ofNullable(clientId);
+    }
+
+    @Override
+    public String getAccount() {
+        return account;
     }
 
     @Override

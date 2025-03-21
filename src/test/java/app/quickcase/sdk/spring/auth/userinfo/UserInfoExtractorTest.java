@@ -29,6 +29,7 @@ class UserInfoExtractorTest {
     private static final String CLAIM_SUB = "conf-sub";
     private static final String CLAIM_NAME = "conf-name";
     private static final String CLAIM_EMAIL = "conf-email";
+    private static final String CLAIM_ACCOUNT = "conf-account";
     private static final String CLAIM_ROLES = "conf-roles";
     private static final String CLAIM_GROUPS = "conf-groups";
     private static final String CLAIM_ORGS = "conf-orgs";
@@ -36,6 +37,7 @@ class UserInfoExtractorTest {
     private static final String CLAIM_DEF_CASE_TYPE = "conf-case-type";
     private static final String CLAIM_DEF_STATE = "conf-state";
 
+    private static final String USER_ACCOUNT = "account-123";
     private static final String USER_APP_ROLES = "role1,role2";
     private static final String USER_GROUPS = "group1,group2";
     private static final String USER_ID = "eec55037-bac7-46b4-9849-f063e627e4f3";
@@ -132,6 +134,7 @@ class UserInfoExtractorTest {
         claims.put(CLAIM_SUB, textNode(USER_ID));
         claims.put(CLAIM_NAME, textNode(USER_NAME));
         claims.put(CLAIM_EMAIL, textNode(USER_EMAIL));
+        claims.put(CLAIM_ACCOUNT, textNode(USER_ACCOUNT));
         claims.put(CLAIM_ROLES, textNode(USER_APP_ROLES));
         claims.put(CLAIM_GROUPS, textNode(USER_GROUPS));
         claims.put(CLAIM_ORGS, textNode(USER_ORGANISATIONS));
@@ -156,6 +159,7 @@ class UserInfoExtractorTest {
                 CLAIM_SUB,
                 CLAIM_NAME,
                 CLAIM_EMAIL,
+                CLAIM_ACCOUNT,
                 CLAIM_ROLES,
                 CLAIM_GROUPS,
                 CLAIM_ORGS,
