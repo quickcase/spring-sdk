@@ -13,14 +13,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 public class QuickcaseClientAuthentication extends QuickcaseAuthentication {
     private static final String DEFAULT_NAME = "System";
-    private static final OrganisationProfile ORGANISATION_PROFILE = clientProfile();
-
-    private static OrganisationProfile clientProfile() {
-        return OrganisationProfile.builder()
-                                  .accessLevel(AccessLevel.ORGANISATION)
-                                  .securityClassification(SecurityClassification.PUBLIC)
-                                  .build();
-    }
 
     private final String subject;
     private final Set<String> roles;
@@ -81,7 +73,7 @@ public class QuickcaseClientAuthentication extends QuickcaseAuthentication {
     @Deprecated(forRemoval = true)
     @Override
     public OrganisationProfile getOrganisationProfile(String organisationId) {
-        return ORGANISATION_PROFILE;
+        return OrganisationProfile.DEFAULT_CLIENT_PROFILE;
     }
 
     @Override
