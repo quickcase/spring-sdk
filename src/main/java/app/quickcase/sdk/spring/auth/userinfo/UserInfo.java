@@ -1,6 +1,5 @@
 package app.quickcase.sdk.spring.auth.userinfo;
 
-import java.security.Principal;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString(onlyExplicitlyIncluded = true) // GDPR: Keep names and emails outside of logs
-public class UserInfo implements Principal, UserDetails {
+public class UserInfo implements UserDetails {
     @NonNull
     @ToString.Include
     String subject;
