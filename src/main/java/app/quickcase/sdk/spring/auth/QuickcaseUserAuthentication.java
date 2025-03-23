@@ -13,13 +13,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 @Slf4j
 public class QuickcaseUserAuthentication extends QuickcaseAuthentication {
-    public static final OrganisationProfile DEFAULT_PROFILE = defaultProfile();
-    private static OrganisationProfile defaultProfile() {
-        return OrganisationProfile.builder()
-                                  .accessLevel(AccessLevel.INDIVIDUAL)
-                                  .securityClassification(SecurityClassification.PUBLIC)
-                                  .build();
-    }
+    public static final OrganisationProfile DEFAULT_PROFILE = OrganisationProfile.DEFAULT_USER_PROFILE;
 
     private final UserInfo userInfo;
     @Nullable

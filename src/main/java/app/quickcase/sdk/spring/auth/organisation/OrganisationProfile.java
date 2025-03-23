@@ -16,6 +16,18 @@ import lombok.extern.slf4j.Slf4j;
 @Builder
 @Slf4j
 public class OrganisationProfile {
+    public static final OrganisationProfile DEFAULT_USER_PROFILE =
+            OrganisationProfile.builder()
+                               .accessLevel(AccessLevel.INDIVIDUAL)
+                               .securityClassification(SecurityClassification.PUBLIC)
+                               .build();
+    public static final OrganisationProfile DEFAULT_CLIENT_PROFILE =
+            OrganisationProfile.builder()
+                               .accessLevel(AccessLevel.ORGANISATION)
+                               .securityClassification(SecurityClassification.PUBLIC)
+                               .build();
+
+
     /**
      * Classification of a user for an organisation. Defaults to PUBLIC, the lowest classification.
      */
