@@ -56,8 +56,8 @@ public class QuickcaseSecurityAutoConfiguration {
     }
 
     @Bean
-    public JwtAccountConverter jwtAccountConverter(OidcConfig oidcConfig) {
-        return new JwtAccountConverter(oidcConfig.getClaims().getNames().getAccount());
+    public JwtAccountConverter jwtAccountConverter(ClaimNamesProvider claimNames) {
+        return new JwtAccountConverter(claimNames.account());
     }
 
     /**
