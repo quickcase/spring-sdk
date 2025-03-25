@@ -6,6 +6,11 @@ import java.net.URISyntaxException;
 import app.quickcase.sdk.spring.auth.claims.ClaimNamesProvider;
 import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtClientInfoConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtGroupsConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtRolesConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtScopesConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtUserInfoConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoAuthenticationConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoGateway;
@@ -58,6 +63,47 @@ public class QuickcaseSecurityAutoConfiguration {
     @Bean
     public JwtAccountConverter jwtAccountConverter(ClaimNamesProvider claimNames) {
         return new JwtAccountConverter(claimNames.account());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JwtScopesConverter.class)
+    public JwtScopesConverter jwtScopesConverter() {
+        return new JwtScopesConverter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JwtRolesConverter.class)
+    public JwtRolesConverter jwtRolesConverter(ClaimNamesProvider claimNames) {
+        return new JwtRolesConverter(claimNames.roles());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JwtGroupsConverter.class)
+    public JwtGroupsConverter jwtGroupsConverter(ClaimNamesProvider claimNames) {
+        return new JwtGroupsConverter(claimNames.groups());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JwtUserInfoConverter.class)
+    public JwtUserInfoConverter jwtUserInfoConverter(
+            ClaimNamesProvider claimNames,
+            JwtAccountConverter accountConverter,
+            JwtRolesConverter rolesConverter,
+            JwtGroupsConverter groupsConverter
+    ) {
+        return new JwtUserInfoConverter(claimNames, accountConverter, rolesConverter, groupsConverter);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(JwtClientInfoConverter.class)
+    public JwtClientInfoConverter jwtClientInfoConverter(
+            ClaimNamesProvider claimNames,
+            JwtAccountConverter accountConverter,
+            JwtScopesConverter scopesConverter,
+            JwtRolesConverter rolesConverter,
+            JwtGroupsConverter groupsConverter
+    ) {
+        return new JwtClientInfoConverter(claimNames, accountConverter, scopesConverter, rolesConverter, groupsConverter);
     }
 
     /**
