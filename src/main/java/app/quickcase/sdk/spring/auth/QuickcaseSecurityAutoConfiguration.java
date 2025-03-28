@@ -42,11 +42,13 @@ public class QuickcaseSecurityAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean(JwtClientIdConverter.class)
     public JwtClientIdConverter jwtClientIdConverter() {
         return new JwtClientIdConverter();
     }
 
     @Bean
+    @ConditionalOnMissingBean(JwtAccountConverter.class)
     public JwtAccountConverter jwtAccountConverter(ClaimNamesProvider claimNames) {
         return new JwtAccountConverter(claimNames.account());
     }
