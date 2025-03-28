@@ -1,16 +1,14 @@
 package app.quickcase.sdk.spring.auth.userinfo;
 
 import java.net.URI;
-import java.util.Map;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import app.quickcase.sdk.spring.auth.OidcException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -19,8 +17,6 @@ import org.springframework.web.client.RestTemplate;
 @Deprecated(forRemoval = true)
 @Slf4j
 public class UserInfoGateway {
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     private final URI userInfoUri;
     private final RestTemplate restTemplate;
 
@@ -29,16 +25,22 @@ public class UserInfoGateway {
         this.restTemplate = restTemplate;
     }
 
-    public Map<String, JsonNode> getClaims(String accessToken) {
-        final HttpEntity<Void> requestEntity = new HttpEntity<>(createHeaders(accessToken));
-        final ResponseEntity<JsonNode> response = restTemplate.exchange(
+    public ObjectNode getClaims(String accessToken) {
+        var requestEntity = new HttpEntity<>(createHeaders(accessToken));
+        var response = restTemplate.exchange(
                 userInfoUri,
                 HttpMethod.GET,
                 requestEntity,
                 JsonNode.class
         );
 
-        return MAPPER.convertValue(response.getBody(), new TypeReference<Map<String, JsonNode>>(){});
+        var body = response.getBody();
+
+        if (body == null || !body.isObject()) {
+            throw new OidcException("Invalid user info response: expected object but was " + body);
+        }
+
+        return (ObjectNode) body;
     }
 
     private HttpHeaders createHeaders(String accessToken) {

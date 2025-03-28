@@ -1,201 +1,162 @@
 package app.quickcase.sdk.spring.auth.userinfo;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.Set;
 
-import app.quickcase.sdk.spring.auth.AccessLevel;
-import app.quickcase.sdk.spring.auth.OidcConfigDefault;
+import app.quickcase.sdk.spring.auth.OidcException;
 import app.quickcase.sdk.spring.auth.QuickcaseAuthentication;
-import app.quickcase.sdk.spring.auth.QuickcaseUserAuthentication;
-import app.quickcase.sdk.spring.auth.SecurityClassification;
-import app.quickcase.sdk.spring.auth.claims.JsonClaimsParser;
-import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
+import app.quickcase.sdk.spring.auth.converters.JsonUserInfoConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
-import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
-import com.fasterxml.jackson.databind.node.TextNode;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
+import app.quickcase.sdk.spring.auth.converters.JwtClientInfoConverter;
+import app.quickcase.sdk.spring.auth.converters.JwtScopesConverter;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.mock;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 @DisplayName("UserInfoAuthenticationConverter")
 class UserInfoAuthenticationConverterTest {
-    private static final String ACCESS_TOKEN = "token123";
-    private static final String CLIENT_ID = "clientId";
-    private static final String SCOPE_2 = "scope-2";
-    private static final String USER_ID = "user-456";
-    private static final String USER_NAME = "Johnny Walker";
-    private static final String USER_EMAIL = "jw@quickcase.app";
-    private static final String ROLE_1 = "role-1";
-    private static final String ROLE_2 = "role-2";
+    private static final JsonNodeFactory JSON = JsonNodeFactory.instance;
 
+    private static final String OPENID_SCOPE = "openid";
+    private static final String SUBJECT = "sub-123";
+    private static final String ACCESS_TOKEN = "token-123";
+    private static final String CLIENT_ID = "clientId";
+
+    @Mock
     private JwtClientIdConverter clientIdConverter;
-    private JwtAccountConverter accountConverter;
+
+    @Mock
+    private JwtScopesConverter scopesConverter;
+
+    @Mock
+    private JwtClientInfoConverter clientInfoConverter;
+
+    @Mock
     private UserInfoGateway userInfoGateway;
-    private UserInfoExtractor userInfoExtractor;
+
+    @Mock
+    private JsonUserInfoConverter userInfoConverter;
+
     private UserInfoAuthenticationConverter converter;
 
     @BeforeEach
     void setUp() {
-        clientIdConverter = mock(JwtClientIdConverter.class);
-        accountConverter = mock(JwtAccountConverter.class);
-        userInfoGateway = mock(UserInfoGateway.class);
-        userInfoExtractor = mock(UserInfoExtractor.class);
-
         converter = new UserInfoAuthenticationConverter(
                 clientIdConverter,
-                accountConverter,
+                scopesConverter,
+                clientInfoConverter,
+                OPENID_SCOPE,
                 userInfoGateway,
-                userInfoExtractor,
-                OidcConfigDefault.OPENID_SCOPE
+                userInfoConverter
         );
     }
 
-    @Nested
-    @DisplayName("when user credentials")
-    class WhenUserCredentials {
+    @Test
+    @DisplayName("should reject tokens without scopes")
+    void shouldRejectTokensWithoutScopes() {
+        var jwt = jwt();
 
-        private QuickcaseAuthentication userAuthentication() {
-            return userAuthentication(OidcConfigDefault.OPENID_SCOPE);
-        }
+        when(scopesConverter.convert(jwt)).thenReturn(Set.of());
 
-        private QuickcaseAuthentication userAuthentication(String openidScope) {
-            when(userInfoGateway.getClaims(ACCESS_TOKEN)).thenReturn(Map.of(
-                    "sub", new TextNode(USER_ID)
-            ));
+        assertThrows(
+                OidcException.class,
+                () -> converter.convert(jwt)
+        );
+    }
 
-            final OrganisationProfile orgA = OrganisationProfile.builder()
-                                                                .accessLevel(AccessLevel.GROUP)
-                                                                .securityClassification(SecurityClassification.PRIVATE)
-                                                                .group("org-a-group")
-                                                                .build();
+    @Test
+    @DisplayName("should convert JWT token with client info when OpenID scope absent")
+    void shouldConvertJwtTokenWithClientInfo() {
+        var jwt = jwt();
 
-            when(userInfoExtractor.extract(ArgumentMatchers.any(JsonClaimsParser.class)))
-                    .thenReturn(
-                            UserInfo.builder(USER_ID)
-                                    .name(USER_NAME)
-                                    .email(USER_EMAIL)
-                                    .roles(ROLE_1, ROLE_2)
-                                    .organisationProfile("org-a", orgA)
-                                    .build()
-                    );
-
-            final Jwt jwt = Jwt.withTokenValue(ACCESS_TOKEN)
-                               .header("alg", "HS256")
-                               .claim("sub", USER_ID)
-                               .claim("scope", scopes(openidScope, SCOPE_2))
-                               .claim("client_id", CLIENT_ID)
+        var userInfo = UserInfo.builder(SUBJECT)
+                               .roles("role1", "role2")
                                .build();
 
-            return converter.convert(jwt);
-        }
+        when(scopesConverter.convert(jwt)).thenReturn(Set.of("scope1", "scope2"));
+        when(clientIdConverter.convert(jwt)).thenReturn(CLIENT_ID);
+        when(clientInfoConverter.convert(jwt)).thenReturn(userInfo);
 
-        @Test
-        @DisplayName("should get ID from user")
-        void shouldGetIdFromUser() {
-            final QuickcaseAuthentication authentication = userAuthentication();
+        var authentication = converter.convert(jwt);
 
-            assertThat(authentication.getId(), equalTo(USER_ID));
-        }
-
-        @Test
-        @DisplayName("should use user name")
-        void shouldUseUserName() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication.getName(), equalTo(USER_NAME));
-        }
-
-        @Test
-        @DisplayName("should have user info")
-        void shouldHaveUserInfo() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication.getUserInfo()
-                                     .orElseThrow()
-                                     .getOrganisationProfiles(), aMapWithSize(1));
-        }
-
-        @Test
-        @DisplayName("should combine prefixed scopes and roles as authorities")
-        void shouldUseRolesAsAuthorities() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication.getAuthorities(), containsInAnyOrder(authorities(
-                    "SCOPE_openid",
-                    "SCOPE_" + SCOPE_2,
-                    "ROLE_" + ROLE_1,
-                    "ROLE_" + ROLE_2
-            )));
-        }
-
-        @Test
-        @DisplayName("should expose user roles")
-        void shouldUseScopesAsRoles() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication.getRoles(), containsInAnyOrder(ROLE_1, ROLE_2));
-        }
-
-        @Test
-        @DisplayName("should have original access token")
-        void shouldHaveOriginalAccessToken() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication.getAccessToken(), equalTo(ACCESS_TOKEN));
-        }
-
-        @Test
-        @DisplayName("should be user authentication")
-        void shouldBeUserAuthentication() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            assertThat(authentication, instanceOf(QuickcaseUserAuthentication.class));
-        }
-
-        @Test
-        @DisplayName("should extract organisation profiles")
-        void shouldExtractOrganisationProfiles() {
-            final QuickcaseAuthentication authentication = userAuthentication();
-
-            final OrganisationProfile profile = authentication.getOrganisationProfile("org-a");
-
-            Assertions.assertAll(
-                    () -> assertThat(profile.getAccessLevel(), Matchers.is(AccessLevel.GROUP)),
-                    () -> assertThat(profile.getSecurityClassification(), Matchers.is(SecurityClassification.PRIVATE)),
-                    () -> assertThat(profile.getGroup().orElse("N/A"), equalTo("org-a-group"))
-            );
-        }
-
-        @Test
-        @DisplayName("should accept custom scope for openid")
-        void shouldAcceptCustomOpenIdScope() {
-            converter = new UserInfoAuthenticationConverter(clientIdConverter, accountConverter, userInfoGateway, userInfoExtractor, "custom-openid");
-
-            final QuickcaseAuthentication authentication = userAuthentication("custom-openid");
-
-            assertThat(authentication, instanceOf(QuickcaseUserAuthentication.class));
-        }
+        assertThat(authentication, equalTo(
+                QuickcaseAuthentication.builder(jwt)
+                                       .clientId(CLIENT_ID)
+                                       .authority("SCOPE_scope1")
+                                       .authority("SCOPE_scope2")
+                                       .authority("ROLE_role1")
+                                       .authority("ROLE_role2")
+                                       .userInfo(userInfo)
+                                       .build()
+        ));
     }
 
-    private String scopes(String... items) {
-        return String.join(" ", items);
+    @Test
+    @DisplayName("should convert JWT token with fetched JSON user info when OpenID scope present")
+    void shouldConvertJwtTokenWithUserInfo() {
+        var jwt = jwt();
+
+        var jsonUserInfo = JSON.objectNode();
+        var userInfo = UserInfo.builder(SUBJECT)
+                               .roles("role1", "role2")
+                               .build();
+
+        when(scopesConverter.convert(jwt)).thenReturn(Set.of(OPENID_SCOPE, "scope1", "scope2"));
+        when(clientIdConverter.convert(jwt)).thenReturn(CLIENT_ID);
+        when(userInfoGateway.getClaims(ACCESS_TOKEN)).thenReturn(jsonUserInfo);
+        when(userInfoConverter.convert(jsonUserInfo)).thenReturn(userInfo);
+
+        var authentication = converter.convert(jwt);
+
+        assertThat(authentication, equalTo(
+                QuickcaseAuthentication.builder(jwt)
+                                       .clientId(CLIENT_ID)
+                                       .authority("SCOPE_" + OPENID_SCOPE)
+                                       .authority("SCOPE_scope1")
+                                       .authority("SCOPE_scope2")
+                                       .authority("ROLE_role1")
+                                       .authority("ROLE_role2")
+                                       .userInfo(userInfo)
+                                       .build()
+        ));
     }
 
-    private GrantedAuthority[] authorities(String ...authorities) {
-        return Arrays.stream(authorities)
-                     .map(SimpleGrantedAuthority::new)
-                     .toArray(GrantedAuthority[]::new);
+    @Test
+    @DisplayName("should reject when token subject does not match fetched user info subject")
+    void shouldRejectWhenSubjectDoesNotMatch() {
+        var jwt = jwt();
+
+        var jsonUserInfo = JSON.objectNode();
+        var userInfo = UserInfo.builder("different-subject") // <-- Non-matching subject
+                               .roles("role1", "role2")
+                               .build();
+
+        when(scopesConverter.convert(jwt)).thenReturn(Set.of(OPENID_SCOPE, "scope1", "scope2"));
+        when(userInfoGateway.getClaims(ACCESS_TOKEN)).thenReturn(jsonUserInfo);
+        when(userInfoConverter.convert(jsonUserInfo)).thenReturn(userInfo);
+
+        var exception = assertThrows(
+                OidcException.class,
+                () -> converter.convert(jwt)
+        );
+        assertThat(exception.getMessage(), is("User info subject does not match expected subject"));
+    }
+
+    private Jwt jwt() {
+        return Jwt.withTokenValue(ACCESS_TOKEN)
+                  .header("alg", "none")
+                  .claim("sub", SUBJECT)
+                  .build();
     }
 }
