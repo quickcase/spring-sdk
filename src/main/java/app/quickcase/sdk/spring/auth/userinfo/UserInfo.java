@@ -1,6 +1,7 @@
 package app.quickcase.sdk.spring.auth.userinfo;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
@@ -14,6 +15,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
  * Provides QuickCase user information.
  * Hold non-security related user information for QuickCase users such as name and email.
  */
+@Slf4j
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString(onlyExplicitlyIncluded = true) // GDPR: Keep names and emails outside of logs
@@ -31,6 +35,9 @@ public class UserInfo implements UserDetails {
     String subject;
     String name;
     String email;
+    @Nullable
+    @ToString.Include
+    String account;
     @NonNull
     @ToString.Include
     Set<GrantedAuthority> authorities;
@@ -49,13 +56,16 @@ public class UserInfo implements UserDetails {
     @NonNull
     Map<String, OrganisationProfile> organisationProfiles;
 
-    public static UserInfoBuilder builder(String subject) {
-        return new UserInfoBuilder(subject);
-    }
+    /**
+     * @deprecated Organisation profiles are being phased out in favour of fully role-driven authorisation.
+     */
+    @Deprecated(forRemoval = true)
+    @Nullable
+    OrganisationProfile defaultProfile;
 
     @Override
     public String getPassword() {
-        return "N/A";
+        return null;
     }
 
     @Override
@@ -63,26 +73,7 @@ public class UserInfo implements UserDetails {
         return email != null ? email : subject;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
+    @NonNull
     public String getName() {
         return name != null ? name : subject;
     }
@@ -91,76 +82,141 @@ public class UserInfo implements UserDetails {
         return Optional.ofNullable(email);
     }
 
+    /**
+     * @deprecated Organisations deprecated in favour of role-driven authorisation; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
+    public OrganisationProfile getOrganisationProfile(String organisationId) {
+        if (organisationProfiles.get(organisationId) != null) {
+            return organisationProfiles.get(organisationId);
+        }
+
+        log.debug(
+                "No profile found for subject `{}` and organisation `{}`, defaulting to {}",
+                getSubject(),
+                organisationId,
+                defaultProfile
+        );
+        return defaultProfile;
+    }
+
+    public static Builder builder(String subject) {
+        return new Builder(subject);
+    }
+
     @RequiredArgsConstructor
-    public static class UserInfoBuilder {
+    public static class Builder {
         private final String subject;
         private String name;
         private String email;
+        private String account;
         private Set<GrantedAuthority> authorities = new HashSet<>();
         private Set<String> roles = new HashSet<>();
         private Set<String> groups = new HashSet<>();
         private UserPreferences preferences;
         private final Map<String, OrganisationProfile> organisationProfiles = new TreeMap<>(String::compareToIgnoreCase);
+        private OrganisationProfile defaultProfile;
 
-        public UserInfoBuilder name(String name) {
+        public Builder name(String name) {
             this.name = name;
             return this;
         }
 
-        public UserInfoBuilder email(String email) {
+        public Builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public UserInfoBuilder authorities(Set<GrantedAuthority> authorities) {
+        public Builder account(String account) {
+            this.account = account;
+            return this;
+        }
+
+        public Builder authorities(Collection<? extends GrantedAuthority> authorities) {
             this.authorities.addAll(authorities);
             return this;
         }
 
-        public UserInfoBuilder authorities(String... authorities) {
+        public Builder authorities(String... authorities) {
             Arrays.stream(authorities)
                   .map(SimpleGrantedAuthority::new)
                   .forEach(this.authorities::add);
             return this;
         }
 
-        public UserInfoBuilder roles(Set<String> roles) {
+        public Builder authority(GrantedAuthority authority) {
+            this.authorities.add(authority);
+            return this;
+        }
+
+        public Builder authority(String authority) {
+            this.authorities.add(new SimpleGrantedAuthority(authority));
+            return this;
+        }
+
+        public Builder roles(Set<String> roles) {
             this.roles.addAll(roles);
             return this;
         }
 
-        public UserInfoBuilder roles(String... roles) {
+        public Builder roles(String... roles) {
             this.roles.addAll(Arrays.asList(roles));
             return this;
         }
 
-        public UserInfoBuilder groups(Set<String> groups) {
+        public Builder role(String role) {
+            this.roles.add(role);
+            return this;
+        }
+
+        public Builder groups(Set<String> groups) {
             this.groups.addAll(groups);
             return this;
         }
 
-        public UserInfoBuilder groups(String... groups) {
+        public Builder groups(String... groups) {
             this.groups.addAll(Arrays.asList(groups));
             return this;
         }
 
-        public UserInfoBuilder preferences(UserPreferences preferences) {
+        public Builder group(String group) {
+            this.groups.add(group);
+            return this;
+        }
+
+        public Builder preferences(UserPreferences preferences) {
             this.preferences = preferences;
             return this;
         }
 
-        public UserInfoBuilder organisationProfile(String identifier, OrganisationProfile profile) {
+        public Builder organisationProfile(String identifier, OrganisationProfile profile) {
             this.organisationProfiles.put(identifier, profile);
             return this;
         }
 
-        public UserInfoBuilder organisationProfiles(Map<String, OrganisationProfile> profiles) {
+        public Builder organisationProfiles(Map<String, OrganisationProfile> profiles) {
             this.organisationProfiles.putAll(profiles);
             return this;
         }
 
+        public Builder defaultProfile(OrganisationProfile defaultProfile) {
+            this.defaultProfile = defaultProfile;
+            return this;
+        }
+
         public UserInfo build() {
-            return new UserInfo(subject, name, email, authorities, roles, groups, preferences, organisationProfiles);
+            return new UserInfo(
+                    subject,
+                    name,
+                    email,
+                    account,
+                    authorities,
+                    roles,
+                    groups,
+                    preferences,
+                    organisationProfiles,
+                    defaultProfile
+            );
         }
     }
 }
