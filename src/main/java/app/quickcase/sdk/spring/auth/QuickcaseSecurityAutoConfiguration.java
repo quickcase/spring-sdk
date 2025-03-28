@@ -4,13 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import app.quickcase.sdk.spring.auth.claims.ClaimNamesProvider;
-import app.quickcase.sdk.spring.auth.converters.JwtAccountConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtClientInfoConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtGroupsConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtRolesConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtScopesConverter;
-import app.quickcase.sdk.spring.auth.converters.JwtUserInfoConverter;
+import app.quickcase.sdk.spring.auth.converters.*;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoAuthenticationConverter;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoGateway;
@@ -104,6 +98,16 @@ public class QuickcaseSecurityAutoConfiguration {
             JwtGroupsConverter groupsConverter
     ) {
         return new JwtClientInfoConverter(claimNames, accountConverter, scopesConverter, rolesConverter, groupsConverter);
+    }
+
+    /**
+     * @deprecated UserInfo parsing deprecated; scheduled for removal in v2.0.0
+     */
+    @Deprecated(forRemoval = true)
+    @Bean
+    @ConditionalOnMissingBean(JsonUserInfoConverter.class)
+    public JsonUserInfoConverter jsonUserInfoConverter(ClaimNamesProvider claimNames) {
+        return new JsonUserInfoConverter(claimNames);
     }
 
     /**
