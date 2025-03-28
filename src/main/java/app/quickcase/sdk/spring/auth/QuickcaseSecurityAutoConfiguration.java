@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import app.quickcase.sdk.spring.auth.claims.ClaimNamesProvider;
 import app.quickcase.sdk.spring.auth.converters.*;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoAuthenticationConverter;
-import app.quickcase.sdk.spring.auth.userinfo.UserInfoExtractor;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfoGateway;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -29,13 +28,6 @@ public class QuickcaseSecurityAutoConfiguration {
     @ConditionalOnMissingBean(ClaimNamesProvider.class)
     public ClaimNamesProvider createClaimNamesProvider(OidcConfig oidcConfig) {
         return new ClaimNamesProvider(oidcConfig.getClaims());
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean(UserInfoExtractor.class)
-    public UserInfoExtractor createUserInfoExtractor(ClaimNamesProvider claimNamesProvider) {
-        return new UserInfoExtractor(claimNamesProvider);
     }
 
     /**
@@ -115,37 +107,41 @@ public class QuickcaseSecurityAutoConfiguration {
      */
     @Deprecated(forRemoval = true)
     @Bean
-    @ConditionalOnMissingBean(QuickcaseAuthenticationConverter.class)
+    @ConditionalOnMissingBean(AbstractAuthenticationConverter.class)
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "user-info", matchIfMissing = true)
     public UserInfoAuthenticationConverter createUserInfoAuthenticationConverter(
             JwtClientIdConverter clientIdConverter,
-            JwtAccountConverter accountConverter,
+            JwtScopesConverter scopesConverter,
+            JwtClientInfoConverter clientInfoConverter,
+            OidcConfig oidcConfig,
             UserInfoGateway userInfoGateway,
-            UserInfoExtractor userInfoExtractor,
-            OidcConfig oidcConfig
+            JsonUserInfoConverter userInfoConverter
     ) {
         return new UserInfoAuthenticationConverter(
                 clientIdConverter,
-                accountConverter,
+                scopesConverter,
+                clientInfoConverter,
+                oidcConfig.getOpenidScope(),
                 userInfoGateway,
-                userInfoExtractor,
-                oidcConfig.getOpenidScope()
+                userInfoConverter
         );
     }
 
     @Bean
-    @ConditionalOnMissingBean(QuickcaseAuthenticationConverter.class)
+    @ConditionalOnMissingBean(AbstractAuthenticationConverter.class)
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "jwt-access-token")
-    public QuickcaseAuthenticationConverter createAccessTokenAuthenticationConverter(
+    public JwtAuthenticationConverter createAccessTokenAuthenticationConverter(
             JwtClientIdConverter clientIdConverter,
-            JwtAccountConverter accountConverter,
-            UserInfoExtractor userInfoExtractor,
+            JwtScopesConverter scopesConverter,
+            JwtUserInfoConverter userInfoConverter,
+            JwtClientInfoConverter clientInfoConverter,
             OidcConfig oidcConfig
     ) {
-        return new QuickcaseAuthenticationConverter(
+        return new JwtAuthenticationConverter(
                 clientIdConverter,
-                accountConverter,
-                userInfoExtractor,
+                scopesConverter,
+                userInfoConverter,
+                clientInfoConverter,
                 oidcConfig.getOpenidScope()
         );
     }
@@ -153,7 +149,7 @@ public class QuickcaseSecurityAutoConfiguration {
     @Bean
     public QuickcaseOAuth2ResourceServerCustomizer oauth2ResourceServerCustomizer(
             OidcConfig oidcConfig,
-            QuickcaseAuthenticationConverter authenticationConverter
+            AbstractAuthenticationConverter authenticationConverter
     ) {
         return new QuickcaseOAuth2ResourceServerCustomizer(oidcConfig, authenticationConverter);
     }

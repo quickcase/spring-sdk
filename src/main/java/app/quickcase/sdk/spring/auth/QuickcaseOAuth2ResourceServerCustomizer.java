@@ -1,5 +1,6 @@
 package app.quickcase.sdk.spring.auth;
 
+import app.quickcase.sdk.spring.auth.converters.AbstractAuthenticationConverter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -27,9 +28,9 @@ import org.springframework.security.web.SecurityFilterChain;
  */
 public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> {
     private final OidcConfig oidcConfig;
-    private final QuickcaseAuthenticationConverter authenticationConverter;
+    private final AbstractAuthenticationConverter authenticationConverter;
 
-    public QuickcaseOAuth2ResourceServerCustomizer(OidcConfig oidcConfig, QuickcaseAuthenticationConverter authenticationConverter) {
+    public QuickcaseOAuth2ResourceServerCustomizer(OidcConfig oidcConfig, AbstractAuthenticationConverter authenticationConverter) {
         this.oidcConfig = oidcConfig;
         this.authenticationConverter = authenticationConverter;
     }
