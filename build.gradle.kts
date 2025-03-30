@@ -100,6 +100,17 @@ tasks.jacocoTestReport {
     reports {
         html.required.set(true)
     }
+
+    // Exclusions from reports, for verification exclusion see task `jacocoTestCoverageVerification`
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/*AutoConfiguration.class", // Spring auto-config classes
+                )
+            }
+        })
+    )
 }
 
 tasks.jacocoTestCoverageVerification {
@@ -108,6 +119,17 @@ tasks.jacocoTestCoverageVerification {
             limit {
                 minimum = "0.9".toBigDecimal()
             }
+
+            // Exclusions from verification
+            classDirectories.setFrom(
+                files(classDirectories.files.map {
+                    fileTree(it) {
+                        exclude(
+                            "**/*AutoConfiguration.class", // Spring auto-config classes
+                        )
+                    }
+                })
+            )
         }
     }
 }
