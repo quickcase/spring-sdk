@@ -10,6 +10,7 @@ import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserPreferences;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -100,8 +101,8 @@ class JsonUserInfoConverterTest {
     }
 
     @Test
-    @DisplayName("should extract organisation profiles")
-    void shouldExtractOrganisationProfiles() {
+    @DisplayName("should extract organisation profiles from JSON string")
+    void shouldExtractOrganisationProfilesFromJsonString() {
         var json = JSON.objectNode()
                        .put(SUB_CLAIM, "sub-123")
                        .put(ORGANISATIONS_CLAIMS, """
@@ -117,6 +118,48 @@ class JsonUserInfoConverterTest {
                                  }
                                }
                                """);
+
+        when(claimNamesProvider.organisations()).thenReturn(ORGANISATIONS_CLAIMS);
+
+        var userInfo = converter.convert(json);
+
+        assertThat(userInfo.getOrganisationProfiles(), equalTo(
+                Map.of(
+                        "org1", OrganisationProfile.builder()
+                                                   .accessLevel(AccessLevel.ORGANISATION)
+                                                   .securityClassification(SecurityClassification.PRIVATE)
+                                                   .build(),
+                        "org2", OrganisationProfile.builder()
+                                                   .accessLevel(AccessLevel.GROUP)
+                                                   .group("group1")
+                                                   .securityClassification(SecurityClassification.PUBLIC)
+                                                   .build()
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("should extract organisation profiles from JSON object")
+    void shouldExtractOrganisationProfilesFromJsonObject() {
+        var json = JSON.objectNode()
+                       .put(SUB_CLAIM, "sub-123")
+                       .<ObjectNode>set(
+                               ORGANISATIONS_CLAIMS,
+                               JSON.objectNode()
+                                   .<ObjectNode>set(
+                                           "org1",
+                                           JSON.objectNode()
+                                               .put("access", "ORGANISATION")
+                                               .put("classification", "PRIVATE")
+                                   )
+                                   .<ObjectNode>set(
+                                           "org2",
+                                           JSON.objectNode()
+                                               .put("access", "GROUP")
+                                               .put("group", "group1")
+                                               .put("classification", "PUBLIC")
+                                   )
+                       );
 
         when(claimNamesProvider.organisations()).thenReturn(ORGANISATIONS_CLAIMS);
 

@@ -47,18 +47,18 @@ public class JsonUserInfoConverter implements Converter<ObjectNode, UserInfo> {
     }
 
     @NonNull
-    private Optional<String> extractOptionalString(JsonNode claims, String claimName) {
+    private Optional<JsonNode> extractClaim(ObjectNode claims, String claimName) {
         if (!claims.has(claimName)) {
             return Optional.empty();
         }
 
-        var valueNode = claims.get(claimName);
+        return Optional.of(claims.get(claimName));
+    }
 
-        if (!valueNode.isTextual()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(valueNode.asText());
+    @NonNull
+    private Optional<String> extractOptionalString(ObjectNode claims, String claimName) {
+        return extractClaim(claims, claimName).filter(JsonNode::isTextual)
+                                              .map(JsonNode::asText);
     }
 
     @NonNull
@@ -86,21 +86,31 @@ public class JsonUserInfoConverter implements Converter<ObjectNode, UserInfo> {
     private Map<String, OrganisationProfile> extractProfiles(String subject, ObjectNode claims) {
         log.debug("Extracting organisation profiles for subject `{}`", subject);
 
-        var organisationStr = extractOptionalString(claims, claimNames.organisations());
-
-        if (organisationStr.isEmpty()) {
-            return Map.of();
-        }
-
-        try {
-            return ORG_PARSER.parse(MAPPER.readTree(organisationStr.get()));
-        } catch (JsonProcessingException e) {
-            log.warn(
-                    "Failed to parse JSON object for claim `{}`, got: `{}`",
-                    claimNames.organisations(),
-                    organisationStr.get()
-            );
-            return Map.of();
-        }
+        return extractClaim(claims, claimNames.organisations()).map(this::parseProfiles)
+                                                               .orElse(Map.of());
     }
+
+    @NonNull
+    private Map<String, OrganisationProfile> parseProfiles(JsonNode organisationNode) {
+        if (organisationNode.isObject()) {
+            return ORG_PARSER.parse(organisationNode);
+        }
+
+        if (organisationNode.isTextual()) {
+            try {
+                return ORG_PARSER.parse(MAPPER.readTree(organisationNode.asText()));
+            } catch (JsonProcessingException e) {
+                log.warn(
+                        "Failed to parse organisation profiles from JSON object for claim `{}`",
+                        claimNames.organisations(),
+                        e
+                );
+                return Map.of();
+            }
+        }
+
+        log.warn("Failed to parse organisation profiles: Unsupported JSON node {}", organisationNode);
+        return Map.of();
+    }
+
 }
