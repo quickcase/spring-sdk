@@ -1,9 +1,12 @@
 package app.quickcase.sdk.spring.auth;
 
 import app.quickcase.sdk.spring.auth.converters.AbstractAuthenticationConverter;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
@@ -38,7 +41,16 @@ public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth
     @Override
     public void customize(OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer) {
         oauth2ResourceServer.jwt(jwt -> {
-            jwt.jwkSetUri(oidcConfig.getJwkSetUri());
+            // Add support for JWT type `at+jwt` used by some OIDC providers
+            var jwsTypeVerifier = new DefaultJOSEObjectTypeVerifier<>(JOSEObjectType.JWT, new JOSEObjectType("at+jwt"));
+
+            jwt.decoder(
+                    NimbusJwtDecoder.withJwkSetUri(oidcConfig.getJwkSetUri())
+                                    .jwtProcessorCustomizer(processor -> {
+                                        processor.setJWSTypeVerifier(jwsTypeVerifier);
+                                    })
+                                    .build()
+            );
             jwt.jwtAuthenticationConverter(authenticationConverter);
         });
     }
