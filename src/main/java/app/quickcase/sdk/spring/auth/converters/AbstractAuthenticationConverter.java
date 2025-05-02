@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import app.quickcase.sdk.spring.auth.OidcException;
 import app.quickcase.sdk.spring.auth.QuickcaseAuthentication;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import static java.util.stream.Collectors.toSet;
 
+@Slf4j
 public abstract class AbstractAuthenticationConverter implements Converter<Jwt, QuickcaseAuthentication> {
     private final JwtClientIdConverter clientIdConverter;
     private final JwtScopesConverter scopesConverter;
@@ -38,6 +40,7 @@ public abstract class AbstractAuthenticationConverter implements Converter<Jwt, 
         var scopes = scopesConverter.convert(jwt);
 
         if (scopes.isEmpty()) {
+            log.warn("No scope claim found in token for subject '{}'", jwt.getSubject());
             throw new OidcException("No scope claim found");
         }
 
