@@ -37,7 +37,10 @@ public class JsonUserInfoConverter implements Converter<ObjectNode, UserInfo> {
         return UserInfo.builder(subject)
                        .name(extractString(claims, claimNames.name()))
                        .email(extractString(claims, claimNames.email()))
-                       .account(extractString(claims, claimNames.account()))
+                       .account(
+                               extractOptionalString(claims, claimNames.account())
+                                       .orElse(null)
+                       )
                        .roles(extractStrings(claims, claimNames.roles(), COMMA_DELIMITER))
                        .groups(extractStrings(claims, claimNames.groups(), COMMA_DELIMITER))
                        .preferences(extractPreferences(claims))
