@@ -11,6 +11,7 @@ import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserPreferences;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,6 +75,28 @@ class JsonUserInfoConverterTest {
                         .defaultProfile(OrganisationProfile.DEFAULT_USER_PROFILE)
                         .build()
         ));
+    }
+
+    @Test
+    @DisplayName("should keep account null when not defined in user info")
+    void shouldKeepAccountNullWhenNotDefinedInUserInfo() {
+        var json = JSON.objectNode()
+                       .put(SUB_CLAIM, "sub-123")
+                       .put(NAME_CLAIM, "User 123")
+                       .put(EMAIL_CLAIM, "user@quickcase.app")
+                       .put(ROLES_CLAIM, "role1,role2")
+                       .put(GROUPS_CLAIM, "group1,group2");
+
+        when(claimNamesProvider.sub()).thenReturn(SUB_CLAIM);
+        when(claimNamesProvider.name()).thenReturn(NAME_CLAIM);
+        when(claimNamesProvider.email()).thenReturn(EMAIL_CLAIM);
+        when(claimNamesProvider.account()).thenReturn(ACCOUNT_CLAIM);
+        when(claimNamesProvider.roles()).thenReturn(ROLES_CLAIM);
+        when(claimNamesProvider.groups()).thenReturn(GROUPS_CLAIM);
+
+        var userInfo = converter.convert(json);
+
+        assertThat(userInfo.getAccount(), is(nullValue()));
     }
 
     @Test
