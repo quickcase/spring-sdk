@@ -54,7 +54,7 @@ publishing {
 }
 
 val versions = mapOf(
-    "springBoot" to "3.4.2"
+    "springBoot" to "3.5.6"
 )
 
 dependencyManagement {
