@@ -23,6 +23,9 @@ public record DataField(
     @NonNull String classification,
     String condition
 ) implements Field {
+    public static final String TYPE_COLLECTION = "Collection";
+    public static final String TYPE_COMPLEX = "Complex";
+
     @Builder
     public record Validation(
             String min,
