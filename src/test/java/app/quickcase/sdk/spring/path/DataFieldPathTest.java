@@ -20,7 +20,10 @@ class DataFieldPathTest {
     @DisplayName("should append collection item selector: identifier")
     void shouldAppendCollectionItemIdentifier() {
         var path = new DataFieldPath("collectionField");
-        assertEquals(new DataFieldPath("collectionField[id:item1]"), path.appendItemSelector("item1"));
+        assertEquals(
+                new DataFieldPath("collectionField[id:ac1f917d-2c3e-47e8-8565-3029e51c6ed8]"),
+                path.appendItemSelector("ac1f917d-2c3e-47e8-8565-3029e51c6ed8")
+        );
     }
 
     @Test

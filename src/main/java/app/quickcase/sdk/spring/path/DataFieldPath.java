@@ -10,8 +10,8 @@ import org.springframework.lang.Nullable;
 
 public final class DataFieldPath extends FieldPath {
     private static final String MEMBER_SEPARATOR = ".";
-    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?(?:\\.[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_]+)|(?:[0-9]+))?])?)*$");
-    private static final Pattern COLLECTION_ITEM_PATTERN = Pattern.compile("^(?<collectionId>[a-zA-Z0-9_]+)\\[(?:(?:id:(?<itemId>[a-zA-Z0-9_]+))|(?<itemIndex>[0-9]+))?]$");
+    private static final Pattern PATTERN = Pattern.compile("^[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_-]+)|(?:[0-9]+))?])?(?:\\.[a-zA-Z0-9_]+(?:\\[(?:(?:id:[a-zA-Z0-9_-]+)|(?:[0-9]+))?])?)*$");
+    private static final Pattern COLLECTION_ITEM_PATTERN = Pattern.compile("^(?<collectionId>[a-zA-Z0-9_]+)\\[(?:(?:id:(?<itemId>[a-zA-Z0-9_-]+))|(?<itemIndex>[0-9]+))?]$");
 
     @Nullable
     private String alternativePath;
