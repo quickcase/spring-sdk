@@ -126,6 +126,7 @@ tasks.jacocoTestCoverageVerification {
                     fileTree(it) {
                         exclude(
                             "**/*AutoConfiguration.class", // Spring auto-config classes
+                            "app/quickcase/sdk/spring/auth/QuickcaseOAuth2ResourceServerCustomizer.class" // Spring customizer
                         )
                     }
                 })

@@ -1,13 +1,19 @@
 package app.quickcase.sdk.spring.auth;
 
+import java.util.Optional;
+
 import app.quickcase.sdk.spring.auth.converters.AbstractAuthenticationConverter;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
+import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
+
+import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
 
 /**
  * Customizer to use in Spring application to configure Spring's {@link SecurityFilterChain}.
@@ -30,6 +36,9 @@ import org.springframework.security.web.SecurityFilterChain;
  * </pre>
  */
 public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> {
+    // Add support for JWT type `at+jwt` used by some OIDC providers
+    public static final DefaultJOSEObjectTypeVerifier<SecurityContext> JWS_TYPE_VERIFIER = new DefaultJOSEObjectTypeVerifier<>(JOSEObjectType.JWT, new JOSEObjectType("at+jwt"));
+
     private final OidcConfig oidcConfig;
     private final AbstractAuthenticationConverter authenticationConverter;
 
@@ -41,16 +50,23 @@ public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth
     @Override
     public void customize(OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer) {
         oauth2ResourceServer.jwt(jwt -> {
-            // Add support for JWT type `at+jwt` used by some OIDC providers
-            var jwsTypeVerifier = new DefaultJOSEObjectTypeVerifier<>(JOSEObjectType.JWT, new JOSEObjectType("at+jwt"));
+            var jwkSetUrl = Optional.ofNullable(oidcConfig.getJwkSetUri());
+            var issuerUrl = Optional.ofNullable(oidcConfig.getIssuerUrl());
 
-            jwt.decoder(
-                    NimbusJwtDecoder.withJwkSetUri(oidcConfig.getJwkSetUri())
-                                    .jwtProcessorCustomizer(processor -> {
-                                        processor.setJWSTypeVerifier(jwsTypeVerifier);
-                                    })
-                                    .build()
-            );
+            var decoderBuilder = jwkSetUrl.map(NimbusJwtDecoder::withJwkSetUri)
+                                          .or(() -> issuerUrl.map(NimbusJwtDecoder::withIssuerLocation))
+                                          .orElseThrow(() -> new IllegalStateException("Either JWK set URI or issuer URL must be provided"));
+
+            var decoder = decoderBuilder
+                                   .jwtProcessorCustomizer(processor -> {
+                                       processor.setJWSTypeVerifier(JWS_TYPE_VERIFIER);
+                                   })
+                                   .build();
+
+            // Enforce issuer validation whenever possible
+            issuerUrl.ifPresent(issuer -> decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer)));
+
+            jwt.decoder(decoder);
             jwt.jwtAuthenticationConverter(authenticationConverter);
         });
     }
