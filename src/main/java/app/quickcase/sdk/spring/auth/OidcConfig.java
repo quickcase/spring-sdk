@@ -4,6 +4,7 @@ import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.lang.Nullable;
 
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.*;
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.Claims.*;
@@ -22,6 +23,8 @@ public class OidcConfig {
      */
     @Deprecated(forRemoval = true)
     String authorisationStrategy;
+    @Nullable
+    String issuerUrl;
     String jwkSetUri;
     String userInfoUri;
     String openidScope;
@@ -37,6 +40,7 @@ public class OidcConfig {
     @ConstructorBinding
     public OidcConfig(
             @DefaultValue(AUTHORISATION_STRATEGY) String authorisationStrategy,
+            String issuerUrl,
             String jwkSetUri,
             String userInfoUri,
             @DefaultValue(OPENID_SCOPE) String openidScope,
@@ -44,6 +48,7 @@ public class OidcConfig {
             @DefaultValue Claims claims
     ) {
         this.authorisationStrategy = authorisationStrategy;
+        this.issuerUrl = issuerUrl;
         this.jwkSetUri = jwkSetUri;
         this.userInfoUri = userInfoUri;
         this.openidScope = openidScope;
