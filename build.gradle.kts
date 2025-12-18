@@ -108,7 +108,8 @@ tasks.jacocoTestReport {
         files(classDirectories.files.map {
             fileTree(it) {
                 exclude(
-                    "**/*AutoConfiguration.class", // Spring auto-config classes
+                    "**/*Configuration.class", // Spring configuration classes
+                    "app/quickcase/sdk/spring/auth/QuickcaseOAuth2ResourceServerCustomizer.class" // Spring customizer
                 )
             }
         })
@@ -127,7 +128,7 @@ tasks.jacocoTestCoverageVerification {
                 files(classDirectories.files.map {
                     fileTree(it) {
                         exclude(
-                            "**/*AutoConfiguration.class", // Spring auto-config classes
+                            "**/*Configuration.class", // Spring auto-config classes
                             "app/quickcase/sdk/spring/auth/QuickcaseOAuth2ResourceServerCustomizer.class" // Spring customizer
                         )
                     }
