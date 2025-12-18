@@ -63,19 +63,6 @@ class UserInfoAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("should reject tokens without scopes")
-    void shouldRejectTokensWithoutScopes() {
-        var jwt = jwt();
-
-        when(scopesConverter.convert(jwt)).thenReturn(Set.of());
-
-        assertThrows(
-                OidcException.class,
-                () -> converter.convert(jwt)
-        );
-    }
-
-    @Test
     @DisplayName("should convert JWT token with client info when OpenID scope absent")
     void shouldConvertJwtTokenWithClientInfo() {
         var jwt = jwt();

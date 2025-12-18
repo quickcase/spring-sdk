@@ -3,7 +3,6 @@ package app.quickcase.sdk.spring.auth.converters;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import app.quickcase.sdk.spring.auth.OidcException;
 import app.quickcase.sdk.spring.auth.QuickcaseAuthentication;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +37,6 @@ public abstract class AbstractAuthenticationConverter implements Converter<Jwt, 
     @Override
     public QuickcaseAuthentication convert(@NonNull Jwt jwt) {
         var scopes = scopesConverter.convert(jwt);
-
-        if (scopes.isEmpty()) {
-            log.warn("No scope claim found in token for subject '{}'", jwt.getSubject());
-            throw new OidcException("No scope claim found");
-        }
 
         var userInfo = scopes.contains(openidScope) ? convertUserInfo(jwt) : clientInfoConverter.convert(jwt);
 
