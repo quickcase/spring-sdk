@@ -1,11 +1,18 @@
 package app.quickcase.sdk.spring.auth;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import lombok.Builder;
 import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.Assert;
 
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.*;
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.Claims.*;
@@ -25,6 +32,8 @@ public class OidcConfig {
     @Deprecated(forRemoval = true)
     String authorisationStrategy;
     @Nullable
+    Client client;
+    @Nullable
     String issuer;
     ProviderMetadata metadata;
     String openidScope;
@@ -37,9 +46,11 @@ public class OidcConfig {
     String mode;
     Claims claims;
 
+    @Builder
     @ConstructorBinding
     public OidcConfig(
             @DefaultValue(AUTHORISATION_STRATEGY) String authorisationStrategy,
+            Client client,
             @NonNull String issuer,
             @Nullable ProviderMetadata metadata,
             @DefaultValue(OPENID_SCOPE) String openidScope,
@@ -47,6 +58,7 @@ public class OidcConfig {
             @DefaultValue Claims claims
     ) {
         this.authorisationStrategy = authorisationStrategy;
+        this.client = client;
         this.issuer = issuer;
         this.metadata = metadata;
         this.openidScope = openidScope;
@@ -54,6 +66,36 @@ public class OidcConfig {
         this.claims = claims;
     }
 
+    public Map<String, Object> toOidcConfiguration() {
+        Assert.notNull(issuer, "OIDC issuer must be provided");
+        Assert.notNull(metadata, "OIDC metadata must be provided");
+        Assert.notNull(metadata.jwksUri(), "OIDC JWK Set URI must be provided");
+        Assert.notNull(metadata.tokenEndpoint(), "OIDC token endpoint must be explicitly provided");
+
+        var oidcConfiguration = new HashMap<String, Object>();
+
+        oidcConfiguration.put("issuer", issuer);
+        oidcConfiguration.put("jwks_uri", metadata.jwksUri());
+        oidcConfiguration.put("token_endpoint", metadata.tokenEndpoint());
+
+        if (metadata.userInfoEndpoint() != null)
+            oidcConfiguration.put("userinfo_endpoint", metadata.userInfoEndpoint());
+
+        // Required by Spring Security
+        oidcConfiguration.put("subject_types_supported", List.of("public"));
+
+        return oidcConfiguration;
+    }
+
+    @Builder
+    public record Client(
+            String id,
+            String secret,
+            Set<String> scope
+    ) {
+    }
+
+    @Builder
     public record ProviderMetadata(
             String jwksUri,
             String tokenEndpoint,
