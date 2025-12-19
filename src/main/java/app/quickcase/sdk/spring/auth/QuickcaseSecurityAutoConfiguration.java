@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.util.Assert;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -38,7 +39,11 @@ public class QuickcaseSecurityAutoConfiguration {
     @ConditionalOnMissingBean(UserInfoGateway.class)
     @ConditionalOnProperty(prefix = "quickcase.oidc", name = "mode", havingValue = "user-info", matchIfMissing = true)
     public UserInfoGateway createUserInfoGateway(OidcConfig oidcConfig) throws URISyntaxException {
-        return new UserInfoGateway(new URI(oidcConfig.getUserInfoUri()), new RestTemplate());
+        var metadata = oidcConfig.getMetadata();
+        Assert.notNull(metadata, "OIDC metadata must be defined");
+        Assert.notNull(metadata.userInfoEndpoint(), "OIDC userinfo endpoint must be defined");
+
+        return new UserInfoGateway(new URI(metadata.userInfoEndpoint()), new RestTemplate());
     }
 
     @Bean

@@ -13,8 +13,6 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-import static org.springframework.security.oauth2.jwt.NimbusJwtDecoder.withJwkSetUri;
-
 /**
  * Customizer to use in Spring application to configure Spring's {@link SecurityFilterChain}.
  * <br>
@@ -50,12 +48,13 @@ public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth
     @Override
     public void customize(OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer) {
         oauth2ResourceServer.jwt(jwt -> {
-            var jwkSetUrl = Optional.ofNullable(oidcConfig.getJwkSetUri());
-            var issuerUrl = Optional.ofNullable(oidcConfig.getIssuerUrl());
+            var issuer = Optional.ofNullable(oidcConfig.getIssuer());
+            var metadata = Optional.ofNullable(oidcConfig.getMetadata());
 
-            var decoderBuilder = jwkSetUrl.map(NimbusJwtDecoder::withJwkSetUri)
-                                          .or(() -> issuerUrl.map(NimbusJwtDecoder::withIssuerLocation))
-                                          .orElseThrow(() -> new IllegalStateException("Either JWK set URI or issuer URL must be provided"));
+            var decoderBuilder = metadata.flatMap(m -> Optional.ofNullable(m.jwksUri()))
+                                         .map(NimbusJwtDecoder::withJwkSetUri)
+                                         .or(() -> issuer.map(NimbusJwtDecoder::withIssuerLocation))
+                                         .orElseThrow(() -> new IllegalStateException("Either JWK set URI or issuer must be provided"));
 
             var decoder = decoderBuilder
                                    .jwtProcessorCustomizer(processor -> {
@@ -64,7 +63,8 @@ public class QuickcaseOAuth2ResourceServerCustomizer implements Customizer<OAuth
                                    .build();
 
             // Enforce issuer validation whenever possible
-            issuerUrl.ifPresent(issuer -> decoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuer)));
+            issuer.map(JwtValidators::createDefaultWithIssuer)
+                  .ifPresent(decoder::setJwtValidator);
 
             jwt.decoder(decoder);
             jwt.jwtAuthenticationConverter(authenticationConverter);

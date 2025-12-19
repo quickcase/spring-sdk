@@ -4,6 +4,7 @@ import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import static app.quickcase.sdk.spring.auth.OidcConfigDefault.*;
@@ -24,9 +25,8 @@ public class OidcConfig {
     @Deprecated(forRemoval = true)
     String authorisationStrategy;
     @Nullable
-    String issuerUrl;
-    String jwkSetUri;
-    String userInfoUri;
+    String issuer;
+    ProviderMetadata metadata;
     String openidScope;
     /**
      * One of: `jwt-access-token`, `user-info`
@@ -40,20 +40,25 @@ public class OidcConfig {
     @ConstructorBinding
     public OidcConfig(
             @DefaultValue(AUTHORISATION_STRATEGY) String authorisationStrategy,
-            String issuerUrl,
-            String jwkSetUri,
-            String userInfoUri,
+            @NonNull String issuer,
+            @Nullable ProviderMetadata metadata,
             @DefaultValue(OPENID_SCOPE) String openidScope,
             @DefaultValue(MODE) String mode,
             @DefaultValue Claims claims
     ) {
         this.authorisationStrategy = authorisationStrategy;
-        this.issuerUrl = issuerUrl;
-        this.jwkSetUri = jwkSetUri;
-        this.userInfoUri = userInfoUri;
+        this.issuer = issuer;
+        this.metadata = metadata;
         this.openidScope = openidScope;
         this.mode = mode;
         this.claims = claims;
+    }
+
+    public record ProviderMetadata(
+            String jwksUri,
+            String tokenEndpoint,
+            String userInfoEndpoint
+    ) {
     }
 
     @Value
