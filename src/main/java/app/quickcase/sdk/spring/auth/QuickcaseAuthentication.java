@@ -46,11 +46,15 @@ public class QuickcaseAuthentication extends JwtAuthenticationToken {
             @NonNull UserInfo userInfo,
             @Nullable String clientId
     ) {
-        super(jwt, authorities, userInfo.getName());
+        super(jwt, authorities, jwt.getSubject());
         this.clientId = clientId;
         this.userInfo = userInfo;
     }
 
+    /**
+     * Duplicates {@link JwtAuthenticationToken#getName()}
+     * @return Subject's unique identifier (ie. sub claim)
+     */
     public String getId() {
         return getToken().getSubject();
     }
