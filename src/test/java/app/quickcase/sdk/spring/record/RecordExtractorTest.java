@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -88,7 +88,7 @@ class RecordExtractorTest {
 
         assertAll(
                 () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                () -> assertThat(value.get(), equalTo(new TextNode("value 1")))
+                () -> assertThat(value.get(), equalTo(new StringNode("value 1")))
         );
     }
 
@@ -130,7 +130,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(WORKSPACE)))
+                    () -> assertThat(value.get(), equalTo(new StringNode(WORKSPACE)))
             );
         }
 
@@ -148,7 +148,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(TYPE)))
+                    () -> assertThat(value.get(), equalTo(new StringNode(TYPE)))
             );
         }
 
@@ -164,7 +164,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(STATE)))
+                    () -> assertThat(value.get(), equalTo(new StringNode(STATE)))
             );
         }
 
@@ -184,7 +184,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(REFERENCE)))
+                    () -> assertThat(value.get(), equalTo(new StringNode(REFERENCE)))
             );
         }
 
@@ -202,7 +202,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(CLASSIFICATION)))
+                    () -> assertThat(value.get(), equalTo(new StringNode(CLASSIFICATION)))
             );
         }
 
@@ -220,7 +220,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(CREATED.toString())))
+                    () -> assertThat(value.get(), equalTo(new StringNode(CREATED.toString())))
             );
         }
 
@@ -238,7 +238,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(value.get(), equalTo(new TextNode(MODIFIED.toString())))
+                    () -> assertThat(value.get(), equalTo(new StringNode(MODIFIED.toString())))
             );
         }
     }
@@ -254,7 +254,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(nestedValue.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(nestedValue.get(), equalTo(new TextNode("nested value 2")))
+                    () -> assertThat(nestedValue.get(), equalTo(new StringNode("nested value 2")))
             );
         }
 
@@ -297,7 +297,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(nestedValue.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(nestedValue.get(), equalTo(new TextNode("Collection value 2")))
+                    () -> assertThat(nestedValue.get(), equalTo(new StringNode("Collection value 2")))
             );
         }
 
@@ -318,7 +318,7 @@ class RecordExtractorTest {
 
             assertAll(
                     () -> assertTrue(nestedValue.isPresent(), "Optional#isPresent()"),
-                    () -> assertThat(nestedValue.get(), equalTo(new TextNode("Collection value 3")))
+                    () -> assertThat(nestedValue.get(), equalTo(new StringNode("Collection value 3")))
             );
         }
 
@@ -392,7 +392,7 @@ class RecordExtractorTest {
             public ObjectNode getData() {
                 try {
                     return (ObjectNode) mapper.readTree(DATA);
-                } catch (JsonProcessingException e) {
+                } catch (JacksonException e) {
                     throw new RuntimeException(e);
                 }
             }

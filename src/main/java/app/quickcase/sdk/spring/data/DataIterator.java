@@ -7,7 +7,7 @@ import java.util.stream.Stream;
 import app.quickcase.sdk.spring.definition.model.DataField;
 import app.quickcase.sdk.spring.path.DataFieldPath;
 import app.quickcase.sdk.spring.path.FieldPath;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.NonNull;
 
 public interface DataIterator extends Iterator<DataIterator.Entry> {

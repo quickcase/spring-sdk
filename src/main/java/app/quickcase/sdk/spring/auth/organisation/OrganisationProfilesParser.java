@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import app.quickcase.sdk.spring.auth.AccessLevel;
 import app.quickcase.sdk.spring.auth.SecurityClassification;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -27,8 +27,8 @@ public class OrganisationProfilesParser {
         }
 
         final Map<String, OrganisationProfile> profiles = new HashMap<>();
-        tree.fieldNames()
-            .forEachRemaining(orgId -> toOrganisationProfile(orgId, tree.get(orgId))
+        tree.propertyNames()
+            .forEach(orgId -> toOrganisationProfile(orgId, tree.get(orgId))
                     .ifPresent(profile -> profiles.put(orgId, profile)));
 
         log.debug("Parsed {} organisation profiles", profiles.size());
@@ -63,7 +63,7 @@ public class OrganisationProfilesParser {
             return Optional.empty();
         }
 
-        final String rawAccessLevel = accessNode.asText().toUpperCase();
+        final String rawAccessLevel = accessNode.asString().toUpperCase();
 
         try {
             return Optional.of(AccessLevel.valueOf(rawAccessLevel));
@@ -82,7 +82,7 @@ public class OrganisationProfilesParser {
             return Optional.empty();
         }
 
-        final String rawClassification = accessNode.asText().toUpperCase();
+        final String rawClassification = accessNode.asString().toUpperCase();
 
         try {
             return Optional.of(SecurityClassification.valueOf(rawClassification));
@@ -103,7 +103,7 @@ public class OrganisationProfilesParser {
             return Optional.empty();
         }
 
-        final String group = groupNode.asText().toLowerCase();
+        final String group = groupNode.asString().toLowerCase();
 
         if (!groupEnabled) {
             log.warn("Group not expected but was `{}`, ignoring", group);

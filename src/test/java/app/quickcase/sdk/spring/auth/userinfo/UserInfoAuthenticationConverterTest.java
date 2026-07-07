@@ -8,7 +8,7 @@ import app.quickcase.sdk.spring.auth.converters.JsonUserInfoConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientIdConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtClientInfoConverter;
 import app.quickcase.sdk.spring.auth.converters.JwtScopesConverter;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

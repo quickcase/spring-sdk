@@ -11,8 +11,8 @@ import app.quickcase.sdk.spring.definition.model.DataField;
 import app.quickcase.sdk.spring.definition.model.RecordType;
 import app.quickcase.sdk.spring.path.DataFieldPath;
 import app.quickcase.sdk.spring.path.FieldPath;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 import org.springframework.lang.NonNull;
 import org.springframework.util.StringUtils;
 
@@ -78,7 +78,7 @@ public class DeepDataIterator implements DataIterator {
 
             if (value.isArray() && DataField.TYPE_COLLECTION.equals(dataField.type())) {
                 // Next we iterate all collection items
-                iterators.push(new CollectionItemsIterator(path, value.elements()));
+                iterators.push(new CollectionItemsIterator(path, value.iterator()));
             }
         });
 
@@ -152,8 +152,8 @@ public class DeepDataIterator implements DataIterator {
             var itemIndex = index++;
             var item = (ObjectNode) iterator.next();
             var id = item.get("id");
-            var itemPath = (id != null && StringUtils.hasText(id.textValue())) ?
-                    collectionPath.appendItemSelector(id.textValue(), itemIndex) : collectionPath.appendItemSelector(itemIndex);
+            var itemPath = (id != null && StringUtils.hasText(id.stringValue())) ?
+                    collectionPath.appendItemSelector(id.stringValue(), itemIndex) : collectionPath.appendItemSelector(itemIndex);
 
             return Map.entry(
                     itemPath.appendMember("value"),
