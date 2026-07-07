@@ -4,10 +4,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.StringNode;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +30,7 @@ class OrganisationProfilesParserTest {
                         "org-2": {"access": "group", "classification": "public", "group": "group-1"}
                     }
                     """);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new AssertionError(e);
         }
     }
@@ -61,13 +61,13 @@ class OrganisationProfilesParserTest {
 
         assertAll(
                 () -> assertThat("null", parser.parse(null), is(Collections.emptyMap())),
-                () -> assertThat("null", parser.parse(new TextNode("hello")), is(Collections.emptyMap()))
+                () -> assertThat("null", parser.parse(new StringNode("hello")), is(Collections.emptyMap()))
         );
     }
 
     @Test
     @DisplayName("should ignore organisation profile which cannot be parsed")
-    void shouldIgnoreInvalidOrganisations() throws JsonProcessingException {
+    void shouldIgnoreInvalidOrganisations() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {"access": "organisation", "classification": "private"},
@@ -81,7 +81,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should use default access level when not defined")
-    void shouldDefaultNullAccessLevel() throws JsonProcessingException {
+    void shouldDefaultNullAccessLevel() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {}
@@ -98,7 +98,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should use default access level when malformed")
-    void shouldDefaultMalformedAccessLevel() throws JsonProcessingException {
+    void shouldDefaultMalformedAccessLevel() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {"access": "malformed"}
@@ -115,7 +115,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should use default classification when not defined")
-    void shouldDefaultNullSecurityClassification() throws JsonProcessingException {
+    void shouldDefaultNullSecurityClassification() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {}
@@ -132,7 +132,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should use default classification when malformed")
-    void shouldDefaultMalformedSecurityClassification() throws JsonProcessingException {
+    void shouldDefaultMalformedSecurityClassification() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {"classification": "malformed"}
@@ -149,7 +149,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should ignore group when access level is not GROUP")
-    void shouldIgnoreGroupWhenNotExpected() throws JsonProcessingException {
+    void shouldIgnoreGroupWhenNotExpected() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {"access": "INDIVIDUAL", "group": "aGroup"}
@@ -166,7 +166,7 @@ class OrganisationProfilesParserTest {
 
     @Test
     @DisplayName("should return empty group when null but expected")
-    void shouldReturnEmptyGroupWhenNullButExpected() throws JsonProcessingException {
+    void shouldReturnEmptyGroupWhenNullButExpected() throws JacksonException {
         final JsonNode tree = MAPPER.readTree("""
                 {
                     "org-1": {"access": "GROUP"}

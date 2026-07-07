@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import app.quickcase.sdk.spring.definition.model.DataField;
 import app.quickcase.sdk.spring.definition.model.RecordType;
 import app.quickcase.sdk.spring.definition.model.Schema;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -50,8 +50,8 @@ class DeepDataIteratorTest {
         var entries = iterator.stream().collect(Collectors.toSet());
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
-                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.textNode("42"))
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
+                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.stringNode("42"))
         ));
     }
 
@@ -66,8 +66,8 @@ class DeepDataIteratorTest {
         var entries = iterator.stream().collect(Collectors.toSet());
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
-                new DataIterator.Entry("fieldUnknown", JSON.textNode("value42")) // <-- no definition
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
+                new DataIterator.Entry("fieldUnknown", JSON.stringNode("value42")) // <-- no definition
         ));
     }
 
@@ -85,11 +85,11 @@ class DeepDataIteratorTest {
         var entries = iterator.stream().collect(Collectors.toSet());
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
                 new DataIterator.Entry("complex1", TYPE.schema().fields().get("complex1"), data.get("complex1")),
-                new DataIterator.Entry("complex1.member1", TYPE.schema().fields().get("complex1").members().get("member1"), JSON.textNode("value1")),
-                new DataIterator.Entry("complex1.member3", TYPE.schema().fields().get("complex1").members().get("member3"), JSON.textNode("value3")),
-                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.textNode("value2"))
+                new DataIterator.Entry("complex1.member1", TYPE.schema().fields().get("complex1").members().get("member1"), JSON.stringNode("value1")),
+                new DataIterator.Entry("complex1.member3", TYPE.schema().fields().get("complex1").members().get("member3"), JSON.stringNode("value3")),
+                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.stringNode("value2"))
         ));
     }
 
@@ -119,11 +119,11 @@ class DeepDataIteratorTest {
                                            .build();
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
                 new DataIterator.Entry("collection2", TYPE.schema().fields().get("collection2"), data.get("collection2")),
-                new DataIterator.Entry("collection2[id:item1].value", collectionItemField, JSON.textNode("item1 value")),
-                new DataIterator.Entry("collection2[id:item2].value", collectionItemField, JSON.textNode("item2 value")),
-                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.textNode("value2"))
+                new DataIterator.Entry("collection2[id:item1].value", collectionItemField, JSON.stringNode("item1 value")),
+                new DataIterator.Entry("collection2[id:item2].value", collectionItemField, JSON.stringNode("item2 value")),
+                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.stringNode("value2"))
         ));
     }
 
@@ -157,14 +157,14 @@ class DeepDataIteratorTest {
                                            .build();
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
                 new DataIterator.Entry("collection1", TYPE.schema().fields().get("collection1"), data.get("collection1")),
                 new DataIterator.Entry("collection1[id:item1].value", collectionItemField, item1.get("value")),
-                new DataIterator.Entry("collection1[id:item1].value.member1", TYPE.schema().fields().get("collection1").content().members().get("member1"), JSON.textNode("value1")),
-                new DataIterator.Entry("collection1[id:item1].value.member3", TYPE.schema().fields().get("collection1").content().members().get("member3"), JSON.textNode("value3")),
+                new DataIterator.Entry("collection1[id:item1].value.member1", TYPE.schema().fields().get("collection1").content().members().get("member1"), JSON.stringNode("value1")),
+                new DataIterator.Entry("collection1[id:item1].value.member3", TYPE.schema().fields().get("collection1").content().members().get("member3"), JSON.stringNode("value3")),
                 new DataIterator.Entry("collection1[id:item2].value", collectionItemField, item2.get("value")),
-                new DataIterator.Entry("collection1[id:item2].value.member2", TYPE.schema().fields().get("collection1").content().members().get("member2"), JSON.textNode("value2")),
-                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.textNode("value2"))
+                new DataIterator.Entry("collection1[id:item2].value.member2", TYPE.schema().fields().get("collection1").content().members().get("member2"), JSON.stringNode("value2")),
+                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.stringNode("value2"))
         ));
     }
 
@@ -197,12 +197,12 @@ class DeepDataIteratorTest {
                                            .build();
 
         assertThat(entries, containsInAnyOrder(
-                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.textNode("value1")),
+                new DataIterator.Entry("field1", TYPE.schema().fields().get("field1"), JSON.stringNode("value1")),
                 new DataIterator.Entry("collection2", TYPE.schema().fields().get("collection2"), data.get("collection2")),
-                new DataIterator.Entry("collection2[0].value", collectionItemField, JSON.textNode("item1 value")),
-                new DataIterator.Entry("collection2[id:item2].value", collectionItemField, JSON.textNode("item2 value")),
-                new DataIterator.Entry("collection2[2].value", collectionItemField, JSON.textNode("item3 value")),
-                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.textNode("value2"))
+                new DataIterator.Entry("collection2[0].value", collectionItemField, JSON.stringNode("item1 value")),
+                new DataIterator.Entry("collection2[id:item2].value", collectionItemField, JSON.stringNode("item2 value")),
+                new DataIterator.Entry("collection2[2].value", collectionItemField, JSON.stringNode("item3 value")),
+                new DataIterator.Entry("field2", TYPE.schema().fields().get("field2"), JSON.stringNode("value2"))
         ));
 
         // Check correct recording of alternative path for items with ID

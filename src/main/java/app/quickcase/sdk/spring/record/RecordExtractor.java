@@ -6,10 +6,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.StringNode;
 
 public class RecordExtractor {
     public static final String OBJECT_SEPARATOR = "\\.";
@@ -56,7 +56,7 @@ public class RecordExtractor {
     }
 
     private Optional<JsonNode> optionalTextNode(String value) {
-        return Optional.of(new TextNode(value));
+        return Optional.of(new StringNode(value));
     }
 
     private PathElement parsePathElement(String pathElement) {
@@ -121,7 +121,7 @@ public class RecordExtractor {
                                             return false;
                                         }
 
-                                        return itemId.equals(id.textValue());
+                                        return itemId.equals(id.stringValue());
                                     }).findFirst();
             }
 

@@ -9,10 +9,10 @@ import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import app.quickcase.sdk.spring.auth.organisation.OrganisationProfilesParser;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserPreferences;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
@@ -102,7 +102,7 @@ public class JsonUserInfoConverter implements Converter<ObjectNode, UserInfo> {
         if (organisationNode.isTextual()) {
             try {
                 return ORG_PARSER.parse(MAPPER.readTree(organisationNode.asText()));
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
                 log.warn(
                         "Failed to parse organisation profiles from JSON object for claim `{}`",
                         claimNames.organisations(),

@@ -1,6 +1,5 @@
 package app.quickcase.sdk.spring.logging.logback;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +8,8 @@ import java.util.Map;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.classic.spi.ThrowableProxy;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Marker;
@@ -23,40 +22,40 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 class JsonEncoderTest {
-    private static final JsonNodeFactory JSON = new JsonNodeFactory(false);
+    private static final JsonNodeFactory JSON = new JsonNodeFactory();
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     final JsonEncoder encoder = new JsonEncoder();
 
     @Test
     @DisplayName("should serialise simple log event")
-    void shouldSerialiseSimpleLogEvent() throws IOException {
+    void shouldSerialiseSimpleLogEvent() {
         var event = loggingEvent().withLevel(Level.WARN).build();
 
         var log = MAPPER.readTree(encoder.encode(event));
 
         assertAll(
-                () -> assertThat(log.get("loggerName").asText(), is("a.b.c.TestLogger")),
-                () -> assertThat(log.get("level").asText(), is("WARN")),
-                () -> assertThat(log.get("message").asText(), is("Simple log event"))
+                () -> assertThat(log.get("loggerName").asString(), is("a.b.c.TestLogger")),
+                () -> assertThat(log.get("level").asString(), is("WARN")),
+                () -> assertThat(log.get("message").asString(), is("Simple log event"))
         );
     }
 
     @Test
     @DisplayName("should serialise formatted message")
-    void withFormattedMessage() throws IOException {
+    void withFormattedMessage() {
         var event = loggingEvent().withMessage("Formatted message {}: {}")
                                   .withArguments("hello", "world")
                                   .build();
 
         var log = MAPPER.readTree(encoder.encode(event));
 
-        assertThat(log.get("message").asText(), is("Formatted message hello: world"));
+        assertThat(log.get("message").asString(), is("Formatted message hello: world"));
     }
 
     @Test
     @DisplayName("should serialise markers")
-    void withMarkers() throws IOException {
+    void withMarkers() {
         var event = loggingEvent().withMarker("MARKER_1")
                                   .withMarker("MARKER_2")
                                   .build();
@@ -66,14 +65,14 @@ class JsonEncoderTest {
 
         assertAll(
                 () -> assertThat(logMarkers.size(), equalTo(2)),
-                () -> assertThat(logMarkers.get(0).asText(), is("MARKER_1")),
-                () -> assertThat(logMarkers.get(1).asText(), is("MARKER_2"))
+                () -> assertThat(logMarkers.get(0).asString(), is("MARKER_1")),
+                () -> assertThat(logMarkers.get(1).asString(), is("MARKER_2"))
         );
     }
 
     @Test
     @DisplayName("should serialise MDC")
-    void withMdc() throws IOException {
+    void withMdc() {
         var event = loggingEvent().withMdcEntry("mdcKey1", "value1")
                                   .withMdcEntry("mdcKey2", "value2")
                                   .build();
@@ -83,14 +82,14 @@ class JsonEncoderTest {
 
         assertAll(
                 () -> assertThat(logMdc.size(), equalTo(2)),
-                () -> assertThat(logMdc.get("mdcKey1").asText(), is("value1")),
-                () -> assertThat(logMdc.get("mdcKey2").asText(), is("value2"))
+                () -> assertThat(logMdc.get("mdcKey1").asString(), is("value1")),
+                () -> assertThat(logMdc.get("mdcKey2").asString(), is("value2"))
         );
     }
 
     @Test
     @DisplayName("should serialise key/value pairs")
-    void withKvp() throws IOException {
+    void withKvp() {
         var event = loggingEvent().withKvp("key1", "value1")
                                   .withKvp("key2", "value2")
                                   .build();
@@ -100,21 +99,21 @@ class JsonEncoderTest {
 
         assertAll(
                 () -> assertThat(logKvp.size(), equalTo(2)),
-                () -> assertThat(logKvp.get("key1").asText(), is("value1")),
-                () -> assertThat(logKvp.get("key2").asText(), is("value2"))
+                () -> assertThat(logKvp.get("key1").asString(), is("value1")),
+                () -> assertThat(logKvp.get("key2").asString(), is("value2"))
         );
     }
 
     @Test
     @DisplayName("should serialise exception")
-    void withException() throws IOException {
+    void withException() {
         var event = loggingEvent().withException(new Throwable("Some exception"))
                                   .build();
 
         var log = MAPPER.readTree(encoder.encode(event));
         var logException = log.get("exception");
 
-        assertThat(logException.get("message"), equalTo(JSON.textNode("Some exception")));
+        assertThat(logException.get("message"), equalTo(JSON.stringNode("Some exception")));
     }
 
     LoggingEventBuilder loggingEvent() {

@@ -7,8 +7,8 @@ import app.quickcase.sdk.spring.auth.organisation.OrganisationProfile;
 import app.quickcase.sdk.spring.auth.organisation.OrganisationProfilesParser;
 import app.quickcase.sdk.spring.auth.userinfo.UserInfo;
 import app.quickcase.sdk.spring.auth.userinfo.UserPreferences;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
@@ -69,7 +69,7 @@ public class JwtUserInfoConverter implements Converter<Jwt, UserInfo> {
 
         try {
             return ORG_PARSER.parse(MAPPER.readTree(organisationStr));
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.warn("Failed to parse JSON object for claim `{}`, got: `{}`", claimNames.organisations(), organisationStr);
             return Map.of();
         }
