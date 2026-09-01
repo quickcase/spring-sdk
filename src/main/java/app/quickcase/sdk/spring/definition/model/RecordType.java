@@ -5,6 +5,7 @@ import lombok.NonNull;
 
 @Builder
 public record RecordType(
-        @NonNull Schema schema
+        @NonNull Schema schema,
+        @NonNull Workflow workflow
 ) {
 }
