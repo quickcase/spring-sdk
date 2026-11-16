@@ -36,8 +36,22 @@ public record DataField(
     @Builder
     public record Option(
             @NonNull String code,
-            @NonNull String label
-    ) {}
+            @NonNull String label,
+            Status status
+    ) {
+        public Option {
+            status = status == null ? Status.ACTIVE : status;
+        }
+
+        public Option(String code, String label) {
+            this(code, label, Status.ACTIVE);
+        }
+
+        public enum Status {
+            ACTIVE,
+            RETIRED
+        }
+    }
 
     @Builder
     public record Content(
