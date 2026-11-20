@@ -37,10 +37,15 @@ public record DataField(
     public record Option(
             @NonNull String code,
             @NonNull String label,
-            Status status
+            Status status,
+            String condition
     ) {
         public Option {
             status = status == null ? Status.ACTIVE : status;
+        }
+
+        public Option(String code, String label, Status status) {
+            this(code, label, status, null);
         }
 
         public Option(String code, String label) {
