@@ -31,6 +31,7 @@ class RecordExtractorTest {
     private static final LocalDateTime CREATED = LocalDateTime.of(2023, Month.FEBRUARY, 14, 23, 11);
     private static final LocalDateTime MODIFIED = LocalDateTime.of(2023, Month.MARCH, 11, 11, 23);
     private static final String CLASSIFICATION = "PRIVATE";
+    private static final String TITLE = "TITLE";
     private static final String DATA = """
             {
                 "textField": "value 1",
@@ -96,12 +97,10 @@ class RecordExtractorTest {
     @DisplayName("when metadata")
     class Metadata {
         @Test
-        @DisplayName("should return empty optional when metadata does not exist")
+        @DisplayName("should error when metadata field is not valid")
         void invalidMetadata() {
             final RecordExtractor extractor = new RecordExtractor(record());
-            final Optional<JsonNode> value = extractor.extract("[not_a_metadata]");
-
-            assertTrue(value.isEmpty(), "Optional#isEmpty()");
+            assertThrows(IllegalArgumentException.class, () -> extractor.extract("[not_a_metadata]"));
         }
 
         @DisplayName("when missing metadata delimiters")
@@ -213,6 +212,8 @@ class RecordExtractorTest {
                 "[CREATED]", // Case insensitive
                 "[created_date]", // Legacy alias
                 "[CREATED_DATE]", // Legacy alias, case-insensitive
+                "[createdAt]",  // Alias
+                "[CREATEDAT]", // Alias case insensitive
         })
         void extractCreatedDate(String path) {
             final RecordExtractor extractor = new RecordExtractor(record());
@@ -227,10 +228,14 @@ class RecordExtractorTest {
         @DisplayName("[modified]")
         @ParameterizedTest(name = "should extract for path: {0}")
         @ValueSource(strings = {
-                "[modified]",
+               "[modified]",
                 "[MODIFIED]", // Case insensitive
                 "[last_modified]", // Alias
                 "[LAST_MODIFIED]", // Alias, case-insensitive
+                "[lastModifiedAt]", // Alias
+                "[LASTMODIFIEDAT]", // Alias case insensitive
+                "[last_modified_date]", // Alias
+                "[LAST_MODIFIED_DATE]", // Alias case insensitive
         })
         void extractLastModifiedDate(String path) {
             final RecordExtractor extractor = new RecordExtractor(record());
@@ -239,6 +244,22 @@ class RecordExtractorTest {
             assertAll(
                     () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
                     () -> assertThat(value.get(), equalTo(new StringNode(MODIFIED.toString())))
+            );
+        }
+
+        @DisplayName("[title]")
+        @ParameterizedTest(name = "should extract for path: {0}")
+        @ValueSource(strings = {
+                "[title]",
+                "[TITLE]", // Case insensitive
+        })
+        void extractTitle(String path) {
+            final RecordExtractor extractor = new RecordExtractor(record());
+            final Optional<JsonNode> value = extractor.extract(path);
+
+            assertAll(
+                    () -> assertTrue(value.isPresent(), "Optional#isPresent()"),
+                    () -> assertThat(value.get(), equalTo(new StringNode(TITLE)))
             );
         }
     }
@@ -386,6 +407,11 @@ class RecordExtractorTest {
             @Override
             public String getClassification() {
                 return CLASSIFICATION;
+            }
+
+            @Override
+            public String getTitle() {
+                return TITLE;
             }
 
             @Override

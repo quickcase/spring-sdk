@@ -25,4 +25,6 @@ public interface Record {
     ObjectNode getData();
 
     ObjectNode getDataClassification();
+
+    String getTitle();
 }
