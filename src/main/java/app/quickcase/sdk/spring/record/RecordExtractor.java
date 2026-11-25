@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.StreamSupport;
 
+import app.quickcase.sdk.spring.metadata.Metadata;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -42,15 +43,16 @@ public class RecordExtractor {
     }
 
     private Optional<JsonNode> extractFromMetadata(String path) {
-        final String metadata = path.substring(1, path.length() - 1).toLowerCase();
+        final Metadata metadata = Metadata.fromPath(path);
         return switch (metadata) {
-            case "workspace", "organisation", "jurisdiction" -> optionalTextNode(record.getWorkspace());
-            case "type", "case_type" -> optionalTextNode(record.getType());
-            case "state" -> optionalTextNode(record.getState());
-            case "id", "reference", "case_reference" -> optionalTextNode(record.getReference());
-            case "classification", "security_classification" -> optionalTextNode(record.getClassification());
-            case "created", "created_date" -> optionalTextNode(record.getCreated().toString());
-            case "modified", "last_modified" -> optionalTextNode(record.getLastModified().toString());
+            case Metadata.WORKSPACE -> optionalTextNode(record.getWorkspace());
+            case Metadata.TYPE -> optionalTextNode(record.getType());
+            case Metadata.STATE -> optionalTextNode(record.getState());
+            case Metadata.ID -> optionalTextNode(record.getReference());
+            case Metadata.CLASSIFICATION -> optionalTextNode(record.getClassification());
+            case Metadata.CREATED_AT -> optionalTextNode(record.getCreated().toString());
+            case Metadata.LAST_MODIFIED_AT -> optionalTextNode(record.getLastModified().toString());
+            case Metadata.TITLE -> optionalTextNode(record.getTitle());
             default -> Optional.empty();
         };
     }
